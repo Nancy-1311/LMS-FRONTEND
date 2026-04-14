@@ -3,20 +3,45 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 
 const TutorDashboard = () => {
-  const [tutor, setTutor] = useState(null); 
+  const [tutor, setTutor] = useState(null);
+  const [dashboard, setDashboard] = useState(null);
   const [newSlot, setNewSlot] = useState("");
 
   const token = localStorage.getItem("token");
 
   useEffect(() => {
     fetchTutor();
+    fetchDashboard();
   }, []);
 
-  //  GET ONLY LOGGED-IN TUTOR
+  // FETCH TUTOR PROFILE
   const fetchTutor = async () => {
+    const res = await axios.get(
+      "http://localhost:5000/api/tutors/me",
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    setTutor(res.data);
+  };
+
+  // FETCH DASHBOARD
+  const fetchDashboard = async () => {
+    const res = await axios.get(
+      "http://localhost:5000/api/tutors/dashboard",
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    setDashboard(res.data);
+  };
+
+  // 🔥 UPLOAD RECORDING
+  const uploadRecording = async (id, url) => {
     try {
-      const res = await axios.get(
-        "http://localhost:5000/api/tutors/me",
+      await axios.put(
+        `http://localhost:5000/api/bookings/${id}/recording`,
+        { recordingUrl: url },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -24,49 +49,18 @@ const TutorDashboard = () => {
         }
       );
 
-      setTutor(res.data);
+      alert("Recording uploaded ✅");
+      fetchDashboard(); // refresh
     } catch (err) {
       console.error(err);
     }
   };
 
-  //  ADD SLOT
-  const addSlot = async (availability) => {
-    try {
-      const updated = [...(availability || []), newSlot];
-
-      await axios.put(
-        "http://localhost:5000/api/tutors/me",
-        { availability: updated },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      setNewSlot("");
-      fetchTutor();
-    } catch (err) {
-      alert("Add slot failed ❌");
-    }
-  };
-
-  // UPDATE FIELD
-  const updateField = (field, value) => {
-    setTutor((prev) => ({ ...prev, [field]: value }));
-  };
-
-  //  SAVE PROFILE
-  const saveProfile = async () => {
+  const updateProfile = async () => {
     try {
       await axios.put(
         "http://localhost:5000/api/tutors/me",
-        {
-          bio: tutor.bio,
-          experience: tutor.experience,
-          expertise: tutor.expertise,
-        },
+        tutor,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -75,35 +69,64 @@ const TutorDashboard = () => {
       );
 
       alert("Profile updated ✅");
-      fetchTutor();
     } catch (err) {
       console.error(err);
-      alert("Update failed ❌");
     }
+  };
+
+  // ADD SLOT
+  const addSlot = async () => {
+    const updated = [...(tutor.availability || []), newSlot];
+
+    await axios.put(
+      "http://localhost:5000/api/tutors/me",
+      { availability: updated },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    setNewSlot("");
+    fetchTutor();
+  };
+
+  // UPDATE FIELD
+  const updateField = (field, value) => {
+    setTutor((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // SAVE PROFILE
+  const saveProfile = async () => {
+    await axios.put(
+      "http://localhost:5000/api/tutors/me",
+      {
+        bio: tutor.bio,
+        experience: tutor.experience,
+        expertise: tutor.expertise,
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    alert("Profile updated ✅");
+    fetchTutor();
   };
 
   // DELETE PROFILE
   const deleteTutor = async () => {
-    try {
-      await axios.delete(
-        "http://localhost:5000/api/tutors/me",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    await axios.delete(
+      "http://localhost:5000/api/tutors/me",
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
 
-      alert("Deleted successfully ✅");
-      setTutor(null);
-    } catch (err) {
-      console.error(err);
-      alert("Delete failed ❌");
-    }
+    alert("Deleted ✅");
+    setTutor(null);
   };
 
-  if (!tutor) return <p>No tutor profile found.
-Create your profile to start teaching.</p>;
+  if (!tutor) return <p>No tutor profile found</p>;
 
   return (
     <div>
@@ -111,11 +134,38 @@ Create your profile to start teaching.</p>;
         Tutor Dashboard 🎓
       </h2>
 
-      <div className="p-5 rounded-2xl mb-6 bg-white dark:bg-gray-900 dark:text-black border">
-        <h3 className="text-xl font-semibold dark:text-white">{tutor.name}</h3>
+      {/* STATS */}
+      {dashboard && (
+        <div className="grid grid-cols-3 gap-6 mb-6">
+          <div className="p-4 border rounded-xl">
+            <p>Total</p>
+            <h3 className="text-xl font-bold">
+              {dashboard.total}
+            </h3>
+          </div>
+
+          <div className="p-4 border rounded-xl">
+            <p>Upcoming</p>
+            <h3 className="text-xl font-bold">
+              {dashboard.upcoming}
+            </h3>
+          </div>
+
+          <div className="p-4 border rounded-xl">
+            <p>Completed</p>
+            <h3 className="text-xl font-bold">
+              {dashboard.completed}
+            </h3>
+          </div>
+        </div>
+      )}
+
+      {/* PROFILE */}
+      <div className="p-5 rounded-2xl mb-6 bg-white dark:bg-gray-900 border">
+        <h3 className="text-xl font-semibold">{tutor.name}</h3>
         <p className="text-gray-400">{tutor.subject}</p>
 
-        {/* Availability */}
+        {/* AVAILABILITY */}
         <div className="mt-3 flex flex-wrap gap-2">
           {tutor.availability?.map((slot) => (
             <span
@@ -133,18 +183,42 @@ Create your profile to start teaching.</p>;
             placeholder="Add time"
             value={newSlot}
             onChange={(e) => setNewSlot(e.target.value)}
-            className="p-2 border rounded w-full bg-white text-black dark:bg-gray-800 dark:text-white"
+            className="p-2 border rounded w-full dark:bg-black"
           />
 
           <button
-            onClick={() => addSlot(tutor.availability)}
+            onClick={addSlot}
             className="px-4 bg-green-500 text-white rounded"
           >
             Add
           </button>
         </div>
 
-        {/* Profile */}
+        {/* PRICE */}
+        <div className="mt-4">
+          <label className="block text-sm mb-1">
+            Price per hour (₹)
+          </label>
+
+          <input
+            type="number"
+            value={tutor.price || ""}
+            onChange={(e) =>
+              setTutor({ ...tutor, price: e.target.value })
+            }
+            className="w-full p-2 border rounded 
+            dark:bg-gray-800 dark:text-white"
+          />
+
+          <button
+            onClick={updateProfile}
+            className="mt-2 w-full py-2 bg-green-500 text-white rounded"
+          >
+            Update Price 💰
+          </button>
+        </div>
+
+        {/* PROFILE EDIT */}
         <div className="mt-4 space-y-2">
           <input
             type="text"
@@ -153,7 +227,7 @@ Create your profile to start teaching.</p>;
             onChange={(e) =>
               updateField("bio", e.target.value)
             }
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded dark:bg-black"
           />
 
           <input
@@ -163,7 +237,7 @@ Create your profile to start teaching.</p>;
             onChange={(e) =>
               updateField("experience", e.target.value)
             }
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded dark:bg-black"
           />
 
           <input
@@ -173,7 +247,7 @@ Create your profile to start teaching.</p>;
             onChange={(e) =>
               updateField("expertise", e.target.value)
             }
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded dark:bg-black"
           />
 
           <div className="flex gap-2">
@@ -181,7 +255,7 @@ Create your profile to start teaching.</p>;
               onClick={saveProfile}
               className="flex-1 py-2 bg-blue-500 text-white rounded"
             >
-              Save Profile
+              Save
             </button>
 
             <button
@@ -194,10 +268,51 @@ Create your profile to start teaching.</p>;
         </div>
       </div>
 
-      {/* Earnings Button */}
+      {/* BOOKINGS */}
+      {dashboard && (
+        <div>
+          <h3 className="text-xl font-bold mb-3">
+            Student Bookings
+          </h3>
+
+          {dashboard.bookings.map((b) => (
+            <div key={b._id} className="p-3 mb-2 border rounded">
+              <p><b>Student:</b> {b.userId?.name}</p>
+              <p><b>Email:</b> {b.userId?.email}</p>
+              <p><b>Date:</b> {new Date(b.date).toLocaleDateString()}</p>
+              <p><b>Time:</b> {b.time}</p>
+
+              {/* 🔥 RECORDING INPUT */}
+              <input
+                type="text"
+                placeholder="Paste recording URL"
+                defaultValue={b.recordingUrl || ""}
+                onBlur={(e) =>
+                  uploadRecording(b._id, e.target.value)
+                }
+                className="mt-2 p-2 border rounded w-full"
+              />
+
+              {/* VIEW RECORDING */}
+              {b.recordingUrl && (
+                <a
+                  href={b.recordingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-green-500 underline block mt-1"
+                >
+                  View Recording 🎥
+                </a>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* EARNINGS */}
       <Link
         to="/earnings"
-        className="inline-block mb-6 px-4 py-2 bg-green-500 text-white rounded"
+        className="inline-block mt-6 px-4 py-2 bg-green-500 text-white rounded"
       >
         Earnings 💰
       </Link>

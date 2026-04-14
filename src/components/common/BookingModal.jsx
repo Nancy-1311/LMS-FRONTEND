@@ -1,56 +1,68 @@
 import { useState } from "react";
+import axios from "axios"; // ✅ ADDED
 import { startPayment } from "../../services/paymentService";
-
-const timeSlots = [
-  "10:00 AM",
-  "11:00 AM",
-  "12:00 PM",
-  "02:00 PM",
-  "04:00 PM",
-  "06:00 PM",
-];
 
 const BookingModal = ({ tutor, onClose }) => {
   const [selectedSlot, setSelectedSlot] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
   const [loading, setLoading] = useState(false);
 
+
+
   const handlePayment = async () => {
-    if (!selectedSlot) {
-      alert("Please select a time slot");
-      return;
-    }
+  if (!selectedSlot || !selectedDate) {
+    alert("Please select date & time");
+    return;
+  }
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      // SAVE BOOKING TEMP (used after payment success)
-      localStorage.setItem(
-        "booking",
-        JSON.stringify({
-          tutorName: tutor.name,
-          subject: tutor.subject,
-          time: selectedSlot,
-          price: tutor.price,
-        })
-      );
+    // ✅ STEP 1: CREATE BOOKING FIRST
+    const bookingRes = await axios.post(
+      "http://localhost:5000/api/bookings",
+      {
+        tutorId: tutor._id,
+        tutorName: tutor.name,
+        subject: tutor.subject,
+        date: selectedDate,
+        time: selectedSlot,
+        price: tutor.price,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
 
-      // CALL STRIPE
-      await startPayment({
+    const booking = bookingRes.data;
+
+    // ✅ STEP 2: CREATE PAYMENT SESSION
+    const paymentRes = await axios.post(
+      "http://localhost:5000/api/payment/create-checkout-session",
+      {
         name: tutor.name,
         price: tutor.price,
-      });
+        bookingId: booking._id,
+        tutorId: tutor._id,
+      }
+    );
 
-    } catch (err) {
-      console.error(err);
-      alert("Payment failed ❌");
-      setLoading(false);
-    }
-  };
+    // ✅ STEP 3: REDIRECT TO STRIPE
+    window.location.href = paymentRes.data.url;
+
+  } catch (err) {
+    console.error(err);
+    alert("Payment failed ❌");
+    setLoading(false);
+  }
+};
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div
-        className="w-[400px] p-6 rounded-2xl 
+
+      <div className="w-[420px] p-6 rounded-2xl 
         bg-white dark:bg-gray-900 
         text-black dark:text-white
         border border-gray-200 dark:border-gray-700 shadow-xl"
@@ -64,25 +76,44 @@ const BookingModal = ({ tutor, onClose }) => {
           {tutor.subject}
         </p>
 
-        {/* Time Slots */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          {timeSlots.map((slot) => (
-            <button
-              key={slot}
-              onClick={() => setSelectedSlot(slot)}
-              className={`p-2 rounded-lg border transition 
-              ${
-                selectedSlot === slot
-                  ? "bg-purple-500 text-white border-purple-500"
-                  : "border-gray-300 dark:border-gray-600 hover:bg-purple-500 hover:text-white"
-              }`}
-            >
-              {slot}
-            </button>
-          ))}
-        </div>
+        {/* DATE */}
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+          className="w-full mb-4 p-2 rounded-lg border 
+          dark:bg-gray-700 dark:text-white"
+        />
 
-        {/* Buttons */}
+        {/* AVAILABILITY */}
+        <h3 className="mb-2 font-semibold">
+          Available Slots
+        </h3>
+
+        {tutor.availability && tutor.availability.length > 0 ? (
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            {tutor.availability.map((slot) => (
+              <button
+                key={slot}
+                onClick={() => setSelectedSlot(slot)}
+                className={`p-2 rounded-lg border transition 
+                ${
+                  selectedSlot === slot
+                    ? "bg-purple-500 text-white border-purple-500"
+                    : "border-gray-300 dark:border-gray-600 hover:bg-purple-500 hover:text-white"
+                }`}
+              >
+                {slot}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-400 mb-4">
+            No availability available
+          </p>
+        )}
+
+        {/* BUTTONS */}
         <div className="flex justify-between gap-3">
           <button
             onClick={onClose}

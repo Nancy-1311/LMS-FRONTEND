@@ -1,259 +1,196 @@
-# Learning Management System (LMS)
+# 🚀 LMS Platform (Learning Management System)
 
-A full-stack LMS platform built using the **MERN stack** that connects students with tutors for online learning, scheduling, and lesson management.
+A full-stack Learning Management System (LMS) built using the MERN stack with role-based access for **Admin, Tutor, and Student**.
 
-# Features
+---
 
-## Authentication
+## 🌟 Features
 
-- User Registration (Student / Tutor)
-- Secure Login (JWT based)
-- Role-based access control
+### 👤 Authentication
 
-## Tutor Features
+- User Registration & Login
+- Role-based access (Admin / Tutor / Student)
+- Secure JWT Authentication
 
-- Tutor profile creation (auto on register)
-- Update profile (bio, experience, expertise)
-- Set availability slots
-- Manage lessons
-- Earnings dashboard
+---
 
-## Student Features
+### 🎓 Student Features
 
-- Browse and search tutors
-- Book lessons
+- Browse & search tutors
+- Book lessons with date & time selection
+- Make payments using Stripe (test mode)
 - View booked lessons
-- Reschedule / cancel lessons
-- Payment tracking
-- Leave reviews & ratings
+- Access recorded sessions
+- View payment history
 
-## Booking System
+---
 
-- Create booking
-- Reschedule booking
-- Cancel booking
+### 👨‍🏫 Tutor Features
 
-## Payments
+- Manage tutor profile
+- Set availability & pricing
+- View booked lessons (only their students)
+- Upload recording URLs
+- Track earnings & completed lessons
 
-- Payment integration (Stripe / mock)
-- Payment history tracking
+---
 
-## ⭐ Reviews
+### 🛠️ Admin Features
 
-- Add ratings & feedback
-- Display tutor ratings
+- View all users
+- Delete users/tutors
+- Activate/Deactivate users
+- Change user roles
+- Manage platform data
 
-# Tech Stack
+---
 
-- **Frontend:** React + Tailwind CSS
-- **Backend:** Node.js + Express
-- **Database:** MongoDB
-- **Authentication:** JWT
-- **Deployment:** Netlify (frontend), Render (backend)
+### 💳 Payments (Stripe)
 
-# 📦 Installation & Setup
+- Secure payment integration
+- Test card supported:
+  - Card: 4242 4242 4242 4242
+  - Expiry: Any future date
+  - CVV: Any 3 digits
 
-## 1️⃣ Clone Repository
+---
 
-```bash
-git clone <repo-url>
-cd LMS
+### 🎥 Additional Features
+
+- Join Class (Video room route)
+- Responsive UI
+- Light/Dark mode support
+- Modern gradient UI
+
+---
+
+## 🧪 Demo Credentials
+
+### 👤 Admin
+
+Email: [admin@test.com]
+Password: 123456
+
+### 👨‍🏫 Tutor
+
+Email: [tutor@test.com]
+Password: 123456
+
+### 🎓 Student
+
+Email: [student@test.com]
+Password: 123456
+
+---
+
+## 🏗️ Tech Stack
+
+### Frontend
+
+- React.js
+- Tailwind CSS
+- Axios
+- React Router
+
+### Backend
+
+- Node.js
+- Express.js
+- MongoDB (Mongoose)
+
+### Other Tools
+
+- Stripe API
+- JWT Authentication
+
+---
+
+## 📁 Project Structure
+
+```
+LMS/
+├── client/     # React Frontend
+├── server/     # Node/Express Backend
+├── README.md
 ```
 
-## 2️⃣ Backend Setup
+---
 
-```bash
+## ⚙️ Installation & Setup
+
+### 1️⃣ Clone the repository
+
+```
+git clone https://github.com/your-username/lms-project.git
+cd lms-project
+```
+
+---
+
+### 2️⃣ Setup Backend
+
+```
 cd server
 npm install
 npm run dev
 ```
 
-## 3️⃣ Frontend Setup
+---
 
-```bash
+### 3️⃣ Setup Frontend
+
+```
 cd client
 npm install
 npm run dev
 ```
 
-# 🔑 Environment Variables (`server/.env`)
+---
+
+## 🔐 Environment Variables
+
+Create `.env` in server folder:
 
 ```
-MONGO_URI=your_mongodb_uri
-JWT_SECRET=your_secret
+MONGO_URI=your_mongodb_connection
+JWT_SECRET=your_secret_key
 STRIPE_SECRET_KEY=your_stripe_key
 ```
 
-# API TESTING (Postman)
+---
 
-## 🔹 1. Register User
+## 🚀 Usage
 
-**POST** `/api/auth/register`
+- Register or use demo credentials
+- Test booking, payments, tutor panel, and admin features
 
-````json
-{
-  "name": "Test User",
-  "email": "test@mail.com",
-  "password": "123456",
-  "role": "tutor"
-}
+---
 
-## 🔹 2. Login
+## 🎯 Key Highlights
 
-**POST** `/api/auth/login`
+- Role-based access control
+- Real-world payment integration
+- Clean and modern UI
+- Full CRUD operations
+- Scalable architecture
 
-```json
-{
-  "email": "test@mail.com",
-  "password": "123456"
-}
-````
+---
 
-👉 Copy `token`
+## 📌 Future Improvements
 
-## 🔹 3. Get Tutor Profile
+- Live video integration (WebRTC)
+- Notifications system
+- Advanced analytics dashboard
+- Chat system
 
-**GET** `/api/tutors/me`
+---
 
-Headers:
+## 👨‍💻 Author
 
-```
-Authorization: Bearer <token>
-```
+Developed by Nancy
 
-## 🔹 4. Update Tutor Profile
+---
 
-**PUT** `/api/tutors/me`
+## ⭐ Note
 
-````json
-{
-  "bio": "Expert Teacher",
-  "experience": "5 years",
-  "expertise": "Math"
-}
-
-## 🔹 5. Get All Tutors
-
-**GET** `/api/tutors`
-
-## 🔹 6. Create Booking
-
-**POST** `/api/bookings`
-
-```json
-{
-  "tutorName": "Test User",
-  "time": "10:00 AM",
-  "price": 500
-}
-
-## 🔹 7. Get Bookings
-
-**GET** `/api/bookings`
-
-## 🔹 8. Reschedule Booking
-
-**PUT** `/api/bookings/:id/reschedule`
-
-```json
-{
-  "newTime": "2:00 PM"
-}
-
-## 🔹 9. Delete Booking
-
-**DELETE** `/api/bookings/:id`
-
-## 🔹 10. Add Review
-
-**POST** `/api/reviews`
-
-```json
-{
-  "tutorId": "TUTOR_ID",
-  "rating": 5,
-  "comment": "Excellent teaching"
-}
-
-## 🔹 11. Earnings
-
-**GET** `/api/payment/earnings`
-
-#  Frontend Testing (UI)
-
-##  Authentication
-
-* Register as Student / Tutor
-* Login and verify redirection
-
-## Tutor Dashboard
-
-* View profile
-* Add availability
-* Update profile
-* Check earnings
-
-##  Student Dashboard
-
-* Browse tutors
-* Search/filter tutors
-* Book lesson
-
-##  Lesson Management
-
-* View "My Lessons"
-* Reschedule lesson
-* Cancel lesson
-
-##  Payment
-
-* Complete booking flow
-* Verify payment success
-* Check payment history
-
-## ⭐ Reviews
-
-* Add review after lesson
-* Verify rating display
-
-# Testing Flow (Recommended)
-
-1. Register as Tutor
-2. Login → Verify tutor dashboard
-3. Add availability
-4. Register/Login as Student
-5. Search tutor
-6. Book lesson
-7. Check My Lessons
-8. Reschedule / Cancel
-9. Add Review
-10. Check Tutor Earnings
-
-#  Important Notes
-
-* Tutor profile is linked with logged-in user
-* Authorization token required for protected routes
-* Backend must be running before frontend
-* Ensure correct role-based access
-
-#  Deployment
-
-* Frontend → Netlify
-* Backend → Render
-* MongoDB → Atlas
-
-# Conclusion
-
-This LMS platform demonstrates:
-
-* Full-stack development (MERN)
-* Role-based authentication
-* Real-time booking system
-* Payment integration
-* Scalable architecture
-
-# Author
-Ms. Nancy
-
-
-````
+This project uses **Stripe test mode**, so no real payments are processed.

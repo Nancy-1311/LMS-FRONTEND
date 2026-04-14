@@ -1,7 +1,8 @@
+import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 
-const MainLayout = ({ children }) => {
+const MainLayout = () => {
   return (
     <div className="flex">
       
@@ -11,7 +12,7 @@ const MainLayout = ({ children }) => {
         <Navbar />
 
         <div className="p-6">
-          {children}
+          <Outlet />   {/* 🔥 THIS IS THE FIX */}
         </div>
       </div>
 

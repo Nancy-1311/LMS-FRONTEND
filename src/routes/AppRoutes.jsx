@@ -15,7 +15,6 @@ const Profile = () => <h1>Profile</h1>;
 const AppRoutes = () => {
   return (
     <Routes>
-      {/* Protected Routes */}
       <Route
         path="/"
         element={
@@ -41,10 +40,9 @@ const AppRoutes = () => {
         }
       />
 
-      {/* Auth */}
+      
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-
       <Route path="/recordings" element={<Recordings />} />
       <Route path="/payments" element={<Payments />} />
       <Route path="/profile" element={<Profile />} />

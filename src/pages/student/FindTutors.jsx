@@ -1,71 +1,86 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getTutors } from "../../services/tutorService";
-import BookingModal from "../../components/common/BookingModal";
+import axios from "axios";
 
 const FindTutors = () => {
   const [tutors, setTutors] = useState([]);
   const [search, setSearch] = useState("");
   const [subject, setSubject] = useState("");
 
-  // FILTERS
   const [minRating, setMinRating] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [availability, setAvailability] = useState("");
 
-  const [selectedTutor, setSelectedTutor] = useState(null);
+  const navigate = useNavigate();
 
-  // NEW: store reviews
-  const [reviewsMap, setReviewsMap] = useState({});
+  const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
     fetchTutors();
   }, []);
 
-  // FETCH REVIEWS
-  const getReviewsByTutor = async (tutorId) => {
-    const res = await fetch(`http://localhost:5000/api/reviews/${tutorId}`);
-    return res.json();
-  };
-
   const fetchTutors = async () => {
     try {
       const data = await getTutors();
       setTutors(data);
-
-      // FETCH REVIEWS FOR EACH TUTOR
-      const reviewData = {};
-
-      for (let tutor of data) {
-        const reviews = await getReviewsByTutor(tutor._id);
-        reviewData[tutor._id] = reviews;
-      }
-
-      setReviewsMap(reviewData);
-
     } catch (err) {
       console.error(err);
     }
   };
 
-  // FILTER LOGIC
+const deleteTutor = async (id) => {
+  try {
+    await axios.delete(
+      `http://localhost:5000/api/tutors/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+
+    alert("Tutor deleted ✅");
+
+    setTutors((prev) =>
+      prev.filter((t) => t._id !== id)
+    );
+
+  } catch (err) {
+    console.error(err);
+    alert("Only Admin can delete the tutor ❌");
+  }
+};
+
   const filteredTutors = tutors.filter((tutor) => {
     return (
-      tutor.name.toLowerCase().includes(search.toLowerCase()) &&
-      (subject === "" || tutor.subject === subject) &&
-      (minRating === "" || tutor.rating >= minRating) &&
-      (maxPrice === "" || tutor.price <= maxPrice) &&
+      tutor.name?.toLowerCase().includes(search.toLowerCase()) &&
+      (subject === "" ||
+        tutor.subject?.toLowerCase() === subject.toLowerCase()) &&
+      (minRating === "" || tutor.rating >= Number(minRating)) &&
+      (maxPrice === "" || tutor.price <= Number(maxPrice)) &&
       (availability === "" ||
-        tutor.availability?.includes(availability))
+        tutor.availability?.some((slot) =>
+          slot.toLowerCase().includes(availability.toLowerCase())
+        ))
     );
   });
 
+  const clearFilters = () => {
+    setSearch("");
+    setSubject("");
+    setMinRating("");
+    setMaxPrice("");
+    setAvailability("");
+  };
+
   return (
+    <>
     <div>
       <h2 className="text-3xl font-bold mb-6">
         Find Tutors 🔍
       </h2>
 
-      {/* FILTERS */}
       <div className="flex flex-wrap gap-4 mb-8">
 
         <input
@@ -89,7 +104,7 @@ const FindTutors = () => {
 
         <input
           type="number"
-          placeholder="Min Rating"
+          placeholder="Min Rating ⭐"
           value={minRating}
           onChange={(e) => setMinRating(e.target.value)}
           className="p-3 border rounded dark:text-black"
@@ -97,7 +112,7 @@ const FindTutors = () => {
 
         <input
           type="number"
-          placeholder="Max Price"
+          placeholder="Max Price ₹"
           value={maxPrice}
           onChange={(e) => setMaxPrice(e.target.value)}
           className="p-3 border rounded dark:text-black"
@@ -105,58 +120,72 @@ const FindTutors = () => {
 
         <input
           type="text"
-          placeholder="Time (e.g. 10:00 AM)"
+          placeholder="Time (e.g. 10:00)"
           value={availability}
           onChange={(e) => setAvailability(e.target.value)}
           className="p-3 border rounded dark:text-black"
         />
+
+        <button
+          onClick={clearFilters}
+          className="px-4 py-2 bg-gray-400 text-white rounded"
+        >
+          Clear
+        </button>
       </div>
 
-      {/* CARDS */}
-      <div className="grid grid-cols-3 gap-6">
-        {filteredTutors.map((tutor) => (
-          <div
-            key={tutor._id}
-            className="p-5 rounded-2xl border"
-          >
-            <h3 className="text-xl font-semibold">
-              {tutor.name}
-            </h3>
-
-            <p>{tutor.subject}</p>
-            <p>⭐ {tutor.rating || 0}</p>
-            <p>₹{tutor.price}/hr</p>
-
-            {/* ✅ SHOW REVIEWS */}
-            <div className="mt-2 text-sm text-gray-400">
-              {reviewsMap[tutor._id]?.length > 0 ? (
-                reviewsMap[tutor._id].map((r, i) => (
-                  <p key={i}>
-                    ⭐ {r.rating} - {r.comment}
-                  </p>
-                ))
-              ) : (
-                <p>No reviews yet</p>
-              )}
-            </div>
-
-            <button
-              onClick={() => setSelectedTutor(tutor)}
-              className="mt-4 w-full py-2 bg-purple-500 text-white rounded"
+      {filteredTutors.length === 0 ? (
+        <p className="text-gray-400 text-center mt-10">
+          No tutors found 😔
+        </p>
+      ) : (
+        <div className="grid grid-cols-3 gap-6">
+          {filteredTutors.map((tutor) => (
+            <div
+              key={tutor._id}
+              className="p-5 rounded-2xl 
+              bg-white dark:bg-gray-900 
+              border border-gray-200 dark:border-gray-700
+              shadow-lg hover:scale-105 transition-all duration-300"
             >
-              Book Lesson
-            </button>
-          </div>
-        ))}
-      </div>
+              <h3 className="text-xl font-semibold">
+                {tutor.name}
+              </h3>
 
-      {selectedTutor && (
-        <BookingModal
-          tutor={selectedTutor}
-          onClose={() => setSelectedTutor(null)}
-        />
+              <p className="text-gray-400">
+                {tutor.subject}
+              </p>
+
+              <p className="mt-2 text-yellow-500">
+                ⭐ {tutor.rating || 0}
+              </p>
+
+              <p className="mt-2 text-purple-500 font-bold">
+                ₹{tutor.price}/hr
+              </p>
+
+              <button
+                onClick={() => navigate(`/tutors/${tutor._id}`)}
+                className="mt-4 w-full py-2 rounded-xl 
+                bg-gradient-to-r from-purple-500 to-blue-500 text-white"
+              >
+                View Profile
+              </button>
+
+              { user.role === "tutor" && (
+  <button
+    onClick={() => deleteTutor(tutor._id)}
+    className="mt-2 w-full py-2 bg-red-500 text-white rounded"
+  >
+    Delete ❌
+  </button>
+)}
+            </div>
+          ))}
+        </div>
       )}
     </div>
+    </>
   );
 };
 

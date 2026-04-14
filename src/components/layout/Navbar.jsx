@@ -1,40 +1,70 @@
 import { useContext } from "react";
 import { ThemeContext } from "../../context/ThemeContext";
+import { Link, useLocation } from "react-router-dom";
 
 const Navbar = () => {
   const { theme, toggleTheme } = useContext(ThemeContext);
+  const location = useLocation();
+
+  const storedUser = localStorage.getItem("user");
+  const user = storedUser ? JSON.parse(storedUser) : null;
 
   const handleLogout = () => {
-    // Clear all stored data
     localStorage.clear();
-    sessionStorage.clear(); 
-
-    // Force full reload
     window.location.href = "/login";
   };
 
+  const getTitle = () => {
+    if (location.pathname === "/admin") return "Admin Panel 👨‍💼";
+    if (location.pathname === "/tutor") return "Tutor Dashboard";
+    if (location.pathname === "/lessons") return "My Lessons";
+    if (location.pathname === "/payments") return "Payments";
+    return "Dashboard";
+  };
+
   return (
-    <div className="flex justify-between items-center p-4 border-b bg-white dark:bg-gray-900">
-      
-      <h2 className="text-xl font-bold">Dashboard</h2>
+    <div className="flex justify-between items-center p-4 
+     dark:bg-gray-900/70 backdrop-blur-xl border-b border-gray-200 dark:border-gray-700">
 
       <div className="flex items-center gap-4">
-        
-        {/* Theme Toggle */}
+        <h2 className="text-xl font-bold">
+          {getTitle()}
+        </h2>
+
+        {user && user.role === "admin" && (
+          <Link
+            to="/admin"
+            className="text-sm px-3 py-1 rounded-lg 
+            bg-purple-500 text-white"
+          >
+            Admin
+          </Link>
+        )}
+      </div>
+
+      <div className="flex items-center gap-4">
+
+        {user && (
+          <p className="text-sm text-gray-500">
+            Hi, {user.name}
+          </p>
+        )}
+
         <button
           onClick={toggleTheme}
-          className="px-4 py-2 rounded bg-purple-500 text-white"
+          className="px-4 py-2 rounded-xl 
+          bg-gradient-to-r from-purple-500 to-blue-500 text-white"
         >
-          {theme === "dark" ? "🌞 Light" : "🌙 Dark"}
+          {theme === "dark" ? "☀️" : "🌙"}
         </button>
 
-        {/* Logout */}
         <button
           onClick={handleLogout}
-          className="px-4 py-2 rounded bg-red-500 text-white"
+          className="px-4 py-2 rounded-xl bg-red-500 text-white"
         >
           Logout
         </button>
+
       </div>
     </div>
   );

@@ -1,37 +1,80 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Success = () => {
+  const navigate = useNavigate();
+  const hasRun = useRef(false);
+
+  // useEffect(() => {
+  //   if (hasRun.current) return; // 🔥 STOP duplicate calls
+  //   hasRun.current = true;
+
+  //   const confirm = async () => {
+  //     try {
+  //       const params = new URLSearchParams(window.location.search);
+
+  //       const bookingId = params.get("bookingId");
+  //       const price = params.get("price");
+
+  //       if (!bookingId) return;
+
+  //       // ✅ CONFIRM PAYMENT
+  //       await axios.post(
+  //         "http://localhost:5000/api/payment/confirm",
+  //         { bookingId, price },
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //           },
+  //         }
+  //       );
+
+  //       console.log("✅ Payment confirmed");
+
+  //       // ⏳ Redirect after success
+  //       setTimeout(() => {
+  //         navigate("/lessons");
+  //       }, 2000);
+
+  //     } catch (err) {
+  //       console.error("❌ Payment confirm error:", err);
+  //     }
+  //   };
+
+  //   confirm();
+
+  // }, []);
+
   useEffect(() => {
-    handleSuccess();
-  }, []);
-
-  const handleSuccess = async () => {
+  const confirm = async () => {
     try {
-      const booking = JSON.parse(localStorage.getItem("booking"));
+      const params = new URLSearchParams(window.location.search);
 
-      if (booking) {
-        // Save booking
-        await axios.post(
-          "http://localhost:5000/api/bookings",
-          booking
-        );
+      const bookingId = params.get("bookingId");
+      const price = params.get("price");
 
-        // Save payment
-        await axios.post(
-          "http://localhost:5000/api/payment-history",
-          {
-            tutorName: booking.tutorName,
-            amount: booking.price || 500,
-          }
-        );
+      if (!bookingId) return;
 
-        localStorage.removeItem("booking");
-      }
+      await axios.post(
+        "http://localhost:5000/api/payment/confirm",
+        { bookingId, price },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      console.log("✅ Payment confirmed");
+
     } catch (err) {
-      console.error(err);
+      console.error("❌ Confirm error:", err);
     }
   };
+
+  confirm();
+}, []);
 
   return (
     <div className="flex items-center justify-center h-screen text-center">
@@ -39,8 +82,13 @@ const Success = () => {
         <h1 className="text-3xl font-bold text-green-500">
           Payment Successful 🎉
         </h1>
+
         <p className="mt-4 text-gray-400">
           Your lesson has been booked successfully!
+        </p>
+
+        <p className="mt-2 text-sm text-gray-500">
+          Redirecting to your lessons...
         </p>
       </div>
     </div>

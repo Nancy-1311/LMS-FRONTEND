@@ -1,15 +1,15 @@
-import axios from "axios";
+import { useContext } from "react";
+import { Navigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
-const API = "http://localhost:5000/api/auth";
+const ProtectedRoute = ({ children }) => {
+  const { user } = useContext(AuthContext);
 
-// REGISTER
-export const registerUser = async (data) => {
-  const res = await axios.post(`${API}/register`, data);
-  return res.data;
+  if (!user) {
+    return <Navigate to="/register" replace />;
+  }
+
+  return children;
 };
 
-// LOGIN
-export const loginUser = async (data) => {
-  const res = await axios.post(`${API}/login`, data);
-  return res.data;
-};
+export default ProtectedRoute;

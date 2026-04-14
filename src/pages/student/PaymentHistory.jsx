@@ -9,10 +9,21 @@ const PaymentHistory = () => {
   }, []);
 
   const fetchPayments = async () => {
-    const res = await axios.get(
-      "http://localhost:5000/api/payment-history"
-    );
-    setPayments(res.data);
+    try {
+      const res = await axios.get(
+        "http://localhost:5000/api/payment/my-payments", // ✅ FIXED
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      setPayments(res.data); // ✅ FIXED
+
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -33,7 +44,7 @@ const PaymentHistory = () => {
               className="p-5 rounded-2xl bg-white dark:bg-gray-900 border"
             >
               <h3 className="text-xl font-semibold">
-                {p.tutorName}
+                {p.tutorName || "Tutor"}
               </h3>
 
               <p className="text-green-500 font-bold mt-2">
@@ -41,7 +52,9 @@ const PaymentHistory = () => {
               </p>
 
               <p className="text-gray-400 text-sm mt-1">
-                {new Date(p.date).toLocaleDateString()}
+                {p.date
+                  ? new Date(p.date).toLocaleDateString()
+                  : "No Date"}
               </p>
             </div>
           ))}
