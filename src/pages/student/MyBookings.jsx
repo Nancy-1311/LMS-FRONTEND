@@ -14,7 +14,6 @@ const MyBookings = () => {
     setBookings(res.data);
   };
 
-  // RESCHEDULE
   const reschedule = async (id) => {
     try {
       await axios.put(
@@ -30,39 +29,73 @@ const MyBookings = () => {
     }
   };
 
+  // ✅ NEW: join class
+  const joinClass = (booking) => {
+    alert("Joining class...");
+    // you can replace this later with real meeting link
+  };
+
+  // ✅ NEW: watch recording
+  const watchRecording = async (url) => {
+    window.open(url);
+  };
+
   return (
     <div>
       <h2 className="text-3xl font-bold mb-6">
         My Bookings 📅
       </h2>
 
-      {bookings.map((b) => (
-        <div
-          key={b._id}
-          className="p-5 mb-4 border rounded-xl"
-        >
-          <p>Tutor: {b.tutorName}</p>
-          <p>Time: {b.time}</p>
+      {bookings.map((b) => {
+        const now = new Date();
+        const classDate = new Date(b.date);
 
-          {/* RESCHEDULE */}
-          <div className="mt-3 flex gap-2">
-            <input
-              type="text"
-              placeholder="New time"
-              value={newTime}
-              onChange={(e) => setNewTime(e.target.value)}
-              className="p-2 border rounded w-full"
-            />
+        return (
+          <div
+            key={b._id}
+            className="p-5 mb-4 border rounded-xl"
+          >
+            <p>Tutor: {b.tutorName}</p>
+            <p>Time: {b.time}</p>
 
-            <button
-              onClick={() => reschedule(b._id)}
-              className="px-4 bg-blue-500 text-white rounded"
-            >
-              Reschedule
-            </button>
+            {/* ✅ NEW: Join / Recording logic */}
+            <div className="mt-2">
+              {!b.recordingUrl ? (
+                <button
+                  onClick={() => joinClass(b)}
+                  className="px-4 py-2 bg-green-500 text-white rounded"
+                >
+                  Join Class
+                </button>
+              ) : (
+                <button
+                  onClick={() => watchRecording(b.recordingUrl)}
+                  className="px-4 py-2 bg-purple-500 text-white rounded"
+                >
+                  Watch Recording 🎥
+                </button>
+              )}
+            </div>
+
+            <div className="mt-3 flex gap-2">
+              <input
+                type="text"
+                placeholder="New time"
+                value={newTime}
+                onChange={(e) => setNewTime(e.target.value)}
+                className="p-2 border rounded w-full"
+              />
+
+              <button
+                onClick={() => reschedule(b._id)}
+                className="px-4 bg-blue-500 text-white rounded"
+              >
+                Reschedule
+              </button>
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

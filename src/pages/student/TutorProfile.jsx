@@ -83,16 +83,8 @@ const TutorProfile = () => {
   </button>
 )}
 
-        {/* <button
-          onClick={() => setShowBooking(true)}
-          className="mt-4 px-6 py-2 rounded-xl 
-          bg-gradient-to-r from-purple-500 to-blue-500 text-white"
-        >
-          Book Lesson
-        </button> */}
       </div>
 
-      {/* DETAILS */}
       <div className="grid grid-cols-2 gap-6 mb-6">
 
         <div className="p-5 rounded-xl bg-white dark:bg-gray-900 border">
@@ -110,7 +102,6 @@ const TutorProfile = () => {
           <p>{tutor.expertise || "Not provided"}</p>
         </div>
 
-        {/* 🔥 IMPROVED AVAILABILITY UI */}
         <div className="p-5 rounded-xl bg-white dark:bg-gray-900 border">
           <h3 className="font-semibold mb-2">Availability</h3>
 
@@ -132,7 +123,6 @@ const TutorProfile = () => {
 
       </div>
 
-      {/* REVIEWS */}
       <div className="p-6 rounded-2xl 
       bg-white dark:bg-gray-900 border">
 
@@ -161,8 +151,7 @@ const TutorProfile = () => {
           </div>
         )}
       </div>
-
-      {/* BOOKING MODAL */}
+      
       {showBooking && (
         <BookingModal
           tutor={tutor}

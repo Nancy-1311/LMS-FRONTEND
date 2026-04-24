@@ -36,7 +36,20 @@ const TutorDashboard = () => {
     setDashboard(res.data);
   };
 
-  // 🔥 UPLOAD RECORDING
+  if (!tutor?.isApproved) {
+  return (
+    <div className="p-6 text-center">
+      <h2 className="text-xl font-semibold text-yellow-500">
+        ⏳ Your tutor account is under review
+      </h2>
+      <p className="text-gray-400 mt-2">
+        You will be able to accept bookings once approved by admin.
+      </p>
+    </div>
+  );
+}
+
+  //UPLOAD RECORDING
   const uploadRecording = async (id, url) => {
     try {
       await axios.put(
@@ -128,37 +141,50 @@ const TutorDashboard = () => {
 
   if (!tutor) return <p>No tutor profile found</p>;
 
+  
+
   return (
     <div>
-      <h2 className="text-3xl font-bold mb-6">
-        Tutor Dashboard 🎓
-      </h2>
+{dashboard && (
+  <div className="grid grid-cols-5 gap-6 mb-6">
+    
+    <div className="p-4 border rounded-xl">
+      <p>Total</p>
+      <h3 className="text-xl font-bold">
+        {dashboard.total}
+      </h3>
+    </div>
 
-      {/* STATS */}
-      {dashboard && (
-        <div className="grid grid-cols-3 gap-6 mb-6">
-          <div className="p-4 border rounded-xl">
-            <p>Total</p>
-            <h3 className="text-xl font-bold">
-              {dashboard.total}
-            </h3>
-          </div>
+    <div className="p-4 border rounded-xl">
+      <p>Upcoming</p>
+      <h3 className="text-xl font-bold">
+        {dashboard.upcoming}
+      </h3>
+    </div>
 
-          <div className="p-4 border rounded-xl">
-            <p>Upcoming</p>
-            <h3 className="text-xl font-bold">
-              {dashboard.upcoming}
-            </h3>
-          </div>
+    <div className="p-4 border rounded-xl">
+      <p>Completed</p>
+      <h3 className="text-xl font-bold">
+        {dashboard.completed}
+      </h3>
+    </div>
 
-          <div className="p-4 border rounded-xl">
-            <p>Completed</p>
-            <h3 className="text-xl font-bold">
-              {dashboard.completed}
-            </h3>
-          </div>
-        </div>
-      )}
+    <div className="p-4 border rounded-xl">
+      <p>Earnings</p>
+      <h3 className="text-xl font-bold text-green-500">
+        ₹{dashboard.totalEarnings || 0}
+      </h3>
+    </div>
+
+    <div className="p-4 border rounded-xl">
+      <p>Students</p>
+      <h3 className="text-xl font-bold">
+        {dashboard.totalStudents || 0}
+      </h3>
+    </div>
+
+  </div>
+)}
 
       {/* PROFILE */}
       <div className="p-5 rounded-2xl mb-6 bg-white dark:bg-gray-900 border">
@@ -277,33 +303,11 @@ const TutorDashboard = () => {
 
           {dashboard.bookings.map((b) => (
             <div key={b._id} className="p-3 mb-2 border rounded">
-              <p><b>Student:</b> {b.userId?.name}</p>
-              <p><b>Email:</b> {b.userId?.email}</p>
+              <p><b>Student:</b> {b.student?.name}</p>
+              <p><b>Email:</b> {b.student?.email}</p>
               <p><b>Date:</b> {new Date(b.date).toLocaleDateString()}</p>
               <p><b>Time:</b> {b.time}</p>
 
-              {/* 🔥 RECORDING INPUT */}
-              <input
-                type="text"
-                placeholder="Paste recording URL"
-                defaultValue={b.recordingUrl || ""}
-                onBlur={(e) =>
-                  uploadRecording(b._id, e.target.value)
-                }
-                className="mt-2 p-2 border rounded w-full"
-              />
-
-              {/* VIEW RECORDING */}
-              {b.recordingUrl && (
-                <a
-                  href={b.recordingUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-green-500 underline block mt-1"
-                >
-                  View Recording 🎥
-                </a>
-              )}
             </div>
           ))}
         </div>

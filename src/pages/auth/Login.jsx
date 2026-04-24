@@ -9,7 +9,6 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // 🔒 Safe redirect
   useEffect(() => {
     try {
       const storedUser = localStorage.getItem("user");
@@ -26,7 +25,7 @@ const Login = () => {
 }
     } catch (err) {
       console.error("User parse error:", err);
-      localStorage.removeItem("user"); // clean corrupted data
+      localStorage.removeItem("user"); 
     }
   }, [navigate]);
 
@@ -44,11 +43,9 @@ const Login = () => {
         { email, password }
       );
 
-      // ✅ Save token + user
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      // 🔄 Redirect
       if (res.data.user.role === "admin") { 
   navigate("/admin");
 } else if (res.data.user.role === "tutor") {
@@ -73,7 +70,7 @@ const Login = () => {
       border border-gray-200 dark:border-gray-700 
       shadow-xl">
 
-        <h2 className="text-2xl font-bold mb-6 text-center">
+        <h2 className="text-2xl font-bold mb-6 text-center dark:text-white">
           Login 🔐
         </h2>
 

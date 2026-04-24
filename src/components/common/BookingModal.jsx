@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios"; // ✅ ADDED
+import axios from "axios";
 import { startPayment } from "../../services/paymentService";
 
 const BookingModal = ({ tutor, onClose }) => {
@@ -8,21 +8,31 @@ const BookingModal = ({ tutor, onClose }) => {
   const [loading, setLoading] = useState(false);
 
 
-
-  const handlePayment = async () => {
+const handlePayment = async () => {
   if (!selectedSlot || !selectedDate) {
     alert("Please select date & time");
     return;
   }
 
-  try {
-    setLoading(true);
+  // DATE VALIDATION FIRST
+  const selectedDateObj = new Date(selectedDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-    // ✅ STEP 1: CREATE BOOKING FIRST
+  if (selectedDateObj < today) {
+    alert("❌ You cannot book a past date");
+    return;
+  }
+
+  try {
+    setLoading(true); // moved here
+
+    // CREATE BOOKING FIRST
     const bookingRes = await axios.post(
       "http://localhost:5000/api/bookings",
       {
         tutorId: tutor._id,
+        // student: user._id,
         tutorName: tutor.name,
         subject: tutor.subject,
         date: selectedDate,
@@ -38,7 +48,7 @@ const BookingModal = ({ tutor, onClose }) => {
 
     const booking = bookingRes.data;
 
-    // ✅ STEP 2: CREATE PAYMENT SESSION
+    // CREATE PAYMENT SESSION
     const paymentRes = await axios.post(
       "http://localhost:5000/api/payment/create-checkout-session",
       {
@@ -49,12 +59,11 @@ const BookingModal = ({ tutor, onClose }) => {
       }
     );
 
-    // ✅ STEP 3: REDIRECT TO STRIPE
     window.location.href = paymentRes.data.url;
 
   } catch (err) {
     console.error(err);
-    alert("Payment failed ❌");
+    alert(err.response?.data?.message || "Booking failed ❌");;
     setLoading(false);
   }
 };

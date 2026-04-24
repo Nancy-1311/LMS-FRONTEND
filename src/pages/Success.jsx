@@ -6,75 +6,48 @@ const Success = () => {
   const navigate = useNavigate();
   const hasRun = useRef(false);
 
-  // useEffect(() => {
-  //   if (hasRun.current) return; // 🔥 STOP duplicate calls
-  //   hasRun.current = true;
-
-  //   const confirm = async () => {
-  //     try {
-  //       const params = new URLSearchParams(window.location.search);
-
-  //       const bookingId = params.get("bookingId");
-  //       const price = params.get("price");
-
-  //       if (!bookingId) return;
-
-  //       // ✅ CONFIRM PAYMENT
-  //       await axios.post(
-  //         "http://localhost:5000/api/payment/confirm",
-  //         { bookingId, price },
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //           },
-  //         }
-  //       );
-
-  //       console.log("✅ Payment confirmed");
-
-  //       // ⏳ Redirect after success
-  //       setTimeout(() => {
-  //         navigate("/lessons");
-  //       }, 2000);
-
-  //     } catch (err) {
-  //       console.error("❌ Payment confirm error:", err);
-  //     }
-  //   };
-
-  //   confirm();
-
-  // }, []);
-
   useEffect(() => {
-  const confirm = async () => {
-    try {
-      const params = new URLSearchParams(window.location.search);
+    // ✅ Prevent double execution
+    if (hasRun.current) return;
+    hasRun.current = true;
 
-      const bookingId = params.get("bookingId");
-      const price = params.get("price");
+    const confirmPayment = async () => {
+      try {
+        const params = new URLSearchParams(window.location.search);
 
-      if (!bookingId) return;
+        const bookingId = params.get("bookingId");
+        // const price = params.get("price");
+        const session_id = params.get("session_id"); // ✅ ADD THIS
 
-      await axios.post(
-        "http://localhost:5000/api/payment/confirm",
-        { bookingId, price },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+        if (!bookingId) {
+          console.error("❌ No bookingId found");
+          return;
         }
-      );
 
-      console.log("✅ Payment confirmed");
+        await axios.post(
+          "http://localhost:5000/api/payment/confirm",
+          { bookingId, session_id},
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
 
-    } catch (err) {
-      console.error("❌ Confirm error:", err);
-    }
-  };
+        console.log("✅ Payment confirmed");
 
-  confirm();
-}, []);
+      } catch (err) {
+        console.error("❌ Confirm error:", err);
+      }
+
+      // ✅ Redirect after success
+        setTimeout(() => {
+          navigate("/lessons");
+        }, 2000);
+    };
+
+    confirmPayment();
+  }, [navigate]);
 
   return (
     <div className="flex items-center justify-center h-screen text-center">

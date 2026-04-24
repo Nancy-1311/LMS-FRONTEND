@@ -52,19 +52,33 @@ const deleteTutor = async (id) => {
   }
 };
 
+  // const filteredTutors = tutors.filter((tutor) => {
+  //   return (
+  //     tutor.name?.toLowerCase().includes(search.toLowerCase()) &&
+  //     (subject === "" ||
+  //       tutor.subject?.toLowerCase() === subject.toLowerCase()) &&
+  //     (minRating === "" || tutor.rating >= Number(minRating)) &&
+  //     (maxPrice === "" || tutor.price <= Number(maxPrice)) &&
+  //     (availability === "" ||
+  //       tutor.availability?.some((slot) =>
+  //         slot.toLowerCase().includes(availability.toLowerCase())
+  //       ))
+  //   );
+  // });
+
   const filteredTutors = tutors.filter((tutor) => {
-    return (
-      tutor.name?.toLowerCase().includes(search.toLowerCase()) &&
-      (subject === "" ||
-        tutor.subject?.toLowerCase() === subject.toLowerCase()) &&
-      (minRating === "" || tutor.rating >= Number(minRating)) &&
-      (maxPrice === "" || tutor.price <= Number(maxPrice)) &&
-      (availability === "" ||
-        tutor.availability?.some((slot) =>
-          slot.toLowerCase().includes(availability.toLowerCase())
-        ))
-    );
-  });
+  return (
+    tutor.name?.toLowerCase().includes(search.toLowerCase()) &&
+    (subject === "" ||
+      tutor.subject?.toLowerCase().includes(subject.toLowerCase())) &&
+    (minRating === "" || (tutor.rating || 0) >= Number(minRating)) &&
+    (maxPrice === "" || tutor.price <= Number(maxPrice)) &&
+    (availability === "" ||
+      tutor.availability?.some((slot) =>
+        slot.toLowerCase().includes(availability.toLowerCase())
+      ))
+  );
+});
 
   const clearFilters = () => {
     setSearch("");
@@ -100,6 +114,9 @@ const deleteTutor = async (id) => {
           <option value="Mathematics">Mathematics</option>
           <option value="Physics">Physics</option>
           <option value="Chemistry">Chemistry</option>
+          <option value="English">English</option>
+          <option value="Hindi">Hindi</option>
+          <option value="Science">Science</option>
         </select>
 
         <input

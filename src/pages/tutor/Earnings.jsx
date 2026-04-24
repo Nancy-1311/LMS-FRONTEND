@@ -11,7 +11,7 @@ const Earnings = () => {
   const fetchEarnings = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:5000/api/tutors/earnings", 
+        "http://localhost:5000/api/tutors/earnings",
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -33,6 +33,7 @@ const Earnings = () => {
         Earnings 💰
       </h2>
 
+      {/* SUMMARY */}
       <div className="flex gap-6 mb-6">
         <div className="p-5 border rounded-xl">
           <h3>Total Earnings</h3>
@@ -49,15 +50,41 @@ const Earnings = () => {
         </div>
       </div>
 
-      {data.payments.map((p) => (
-        <div key={p._id} className="p-4 mb-3 border rounded">
-          <p>Payment ID: {p._id}</p> 
-          <p>₹{p.amount}</p>
-          <p>{new Date(p.createdAt).toLocaleDateString()}</p> 
-        </div>
-      ))}
+      {/* EARNINGS LIST */}
+      <div className="grid gap-4">
+        {data.payments.map((p) => (
+          <div
+            key={p._id}
+            className="p-5 rounded-xl border bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700"
+          >
+      
+            <p className="font-semibold text-lg">
+  Session with {p.student?.name || "Student"}
+</p>
+
+            {/* Subject */}
+            <p className="text-sm text-gray-400">
+              Subject - {p.subject || "Subject not specified"}
+            </p>
+
+            {/* Date & Time */}
+            <p className="text-sm text-gray-400 mt-1">
+              {new Date(p.createdAt).toLocaleDateString()} |{" "}
+              {p.time || "Time not available"}
+            </p>
+
+            <p className="text-md text-gray-500 mt-2">Earning</p>
+<p className="font-bold text-green-500 text-lg">₹{p.amount}</p>
+
+            <span className="inline-block mt-2 px-2 py-1 text-xs bg-green-500/20 text-green-400 rounded">
+  Paid ✅
+</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
 
 export default Earnings;
+

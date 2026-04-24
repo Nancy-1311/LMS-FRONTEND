@@ -6,49 +6,90 @@ const Dashboard = () => {
     total: 0,
     upcoming: 0,
     completed: 0,
+    totalSpent: 0, // ✅ ADDED
   });
 
   useEffect(() => {
     fetchStats();
   }, []);
 
-  const fetchStats = async () => {
-    try {
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  
+ const fetchStats = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    // ✅ ADMIN LOGIC (ADD THIS FIRST)
+    if (user?.role === "admin") {
       const res = await axios.get(
-        "http://localhost:5000/api/bookings",
+        "http://localhost:5000/api/admin/dashboard",
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      const bookings = res.data;
-
-      const total = bookings.length;
-
-      const now = new Date();
-
-      let upcoming = 0;
-      let completed = 0;
-
-      bookings.forEach((b) => {
-        const bookingDate = new Date(b.date);
-
-        if (bookingDate > now) {
-          upcoming++;
-        } else {
-          completed++;
-        }
-      });
-
-      setStats({ total, upcoming, completed });
-
-    } catch (err) {
-      console.error(err);
+      setStats(res.data);
+      return;
     }
-  };
 
+    // ✅ TUTOR LOGIC
+    if (user?.role === "tutor") {
+      const res = await axios.get(
+        "http://localhost:5000/api/tutors/dashboard",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setStats(res.data);
+      return;
+    }
+
+    // ✅ STUDENT LOGIC (same as your code)
+    const res = await axios.get(
+      "http://localhost:5000/api/bookings",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const bookings = res.data;
+
+    const total = bookings.length;
+    const now = new Date();
+
+    let upcoming = 0;
+    let completed = 0;
+
+   bookings.forEach((b) => {
+  if (b.meetingLink && b.meetingLink !== "") {
+    completed++;   // ✅ tutor has added meeting link
+  } else {
+    upcoming++;    // ✅ still upcoming
+  }
+});
+
+    const totalSpent = bookings.reduce(
+      (sum, b) => sum + (b.price || 0),
+      0
+    );
+
+    setStats({ total, upcoming, completed, totalSpent });
+
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+  
+  
   return (
     <div>
       <h2 className="text-3xl font-bold mb-8">
@@ -57,7 +98,6 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-3 gap-6">
 
-        {/* TOTAL */}
         <div className="p-6 rounded-2xl 
         bg-gradient-to-r from-purple-500/20 to-blue-500/20 
         backdrop-blur-lg border border-white/10
@@ -69,7 +109,6 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* UPCOMING */}
         <div className="p-6 rounded-2xl 
         bg-gradient-to-r from-pink-500/20 to-purple-500/20 
         backdrop-blur-lg border border-white/10
@@ -81,7 +120,6 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* COMPLETED */}
         <div className="p-6 rounded-2xl 
         bg-gradient-to-r from-green-500/20 to-blue-500/20 
         backdrop-blur-lg border border-white/10
@@ -93,9 +131,88 @@ const Dashboard = () => {
           </p>
         </div>
 
+
+        {user?.role === "student" && (
+  <div className="p-6 rounded-2xl 
+  bg-gradient-to-r from-yellow-500/20 to-orange-500/20 
+  backdrop-blur-lg border border-white/10">
+    
+    <h3 className="text-gray-400">Total Spent</h3>
+    <p className="text-3xl font-bold mt-2">
+      ₹{stats.totalSpent}
+    </p>
+  </div>
+)}
+
+
+{user?.role === "tutor" && (
+  <div className="p-6 rounded-2xl 
+  bg-gradient-to-r from-green-500/20 to-blue-500/20 
+  backdrop-blur-lg border border-white/10">
+    
+    <h3 className="text-gray-400">Total Earnings</h3>
+    <p className="text-3xl font-bold mt-2">
+      ₹{stats.totalEarnings || 0}
+    </p>
+  </div>
+)}
+
+{user?.role === "admin" && (
+  <>
+    <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-500/20 to-purple-500/20">
+      <h3 className="text-gray-400">Total Users</h3>
+      <p className="text-3xl font-bold mt-2">
+        {stats.totalUsers || 0}
+      </p>
+    </div>
+
+    <div className="p-6 rounded-2xl bg-gradient-to-r from-green-500/20 to-blue-500/20">
+      <h3 className="text-gray-400">Total Tutors</h3>
+      <p className="text-3xl font-bold mt-2">
+        {stats.totalTutors || 0}
+      </p>
+    </div>
+
+    <div className="p-6 rounded-2xl bg-gradient-to-r from-pink-500/20 to-purple-500/20">
+      <h3 className="text-gray-400">Total Bookings</h3>
+      <p className="text-3xl font-bold mt-2">
+        {stats.totalBookings || 0}
+      </p>
+    </div>
+
+    <div className="p-6 rounded-2xl bg-gradient-to-r from-yellow-500/20 to-orange-500/20">
+      <h3 className="text-gray-400">Total Revenue</h3>
+      <p className="text-3xl font-bold mt-2">
+        ₹{stats.totalRevenue || 0}
+      </p>
+    </div>
+  </>
+)}
+
       </div>
     </div>
   );
 };
 
 export default Dashboard;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

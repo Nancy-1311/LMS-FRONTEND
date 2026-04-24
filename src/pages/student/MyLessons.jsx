@@ -4,11 +4,11 @@ import { useNavigate } from "react-router-dom";
 
 const MyLessons = () => {
   const [bookings, setBookings] = useState([]);
-  const [recordingUrl, setRecordingUrl] = useState("");
-  const [selectedId, setSelectedId] = useState(null);
   const [newTimes, setNewTimes] = useState({});
   const [reviewData, setReviewData] = useState({});
+  const [meetingLinks, setMeetingLinks] = useState({});
   const [loading, setLoading] = useState(true);
+  const [recordingLinks, setRecordingLinks] = useState({});
 
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
@@ -35,25 +35,30 @@ const MyLessons = () => {
     }
   };
 
-  const joinClass = (booking) => {
-    const roomId = booking._id;
-    navigate(`/room/${roomId}`);
+  const saveRecording = async (id) => {
+    try {
+      await axios.put(
+        `http://localhost:5000/api/bookings/${id}/recording`,
+        { recordingUrl: recordingLinks[id] },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      alert("Recording saved 🎥");
+      fetchBookings();
+    } catch (err) {
+      alert("Failed ❌");
+    }
   };
 
-  const uploadRecording = async () => {
-    await axios.put(
-      `http://localhost:5000/api/bookings/${selectedId}/recording`,
-      { recordingUrl },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-
-    setRecordingUrl("");
-    setSelectedId(null);
-    fetchBookings();
+  const joinClass = (booking) => {
+    if (!booking.meetingLink) {
+      alert("Meeting link not added yet ❌");
+      return;
+    }
+    window.open(booking.meetingLink, "_blank");
   };
 
   const cancelBooking = async (id) => {
@@ -65,28 +70,19 @@ const MyLessons = () => {
         },
       }
     );
-
     setBookings(bookings.filter((b) => b._id !== id));
   };
 
   const reschedule = async (id) => {
-    await axios.put(
-      `http://localhost:5000/api/bookings/${id}/reschedule`,
-      { newTime: newTimes[id] },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-
-    fetchBookings();
-  };
-
-  const getRecording = async (id) => {
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/bookings/${id}/recording`,
+      if (!newTimes[id]) {
+        alert("Please select a new time ❌");
+        return;
+      }
+
+      await axios.put(
+        `http://localhost:5000/api/bookings/${id}/reschedule`,
+        { newTime: newTimes[id] },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -94,18 +90,40 @@ const MyLessons = () => {
         }
       );
 
-      window.open(res.data.recordingUrl, "_blank");
+      alert("Rescheduled successfully ✅");
+      fetchBookings();
     } catch (err) {
-      alert("Not authorized ❌");
+      console.error(err);
+      alert(err.response?.data?.message || "Reschedule failed ❌");
     }
   };
 
-  const submitReview = async (tutorId) => {
+  const submitReview = async (booking) => {
     try {
+      const tutorId =
+        typeof booking.tutor === "object"
+          ? booking.tutor._id
+          : booking.tutor;
+
       const data = reviewData[tutorId];
 
-      if (!data?.rating) {
-        alert("Give rating");
+      console.log("TutorId:", tutorId);
+      console.log("Review Data:", data);
+
+      if (!tutorId) {
+        alert("Tutor not found ❌");
+        return;
+      }
+
+      if (!data || data.rating === undefined) {
+        alert("Rating missing ❌");
+        return;
+      }
+
+      const rating = Number(data.rating);
+
+      if (isNaN(rating) || rating < 1 || rating > 5) {
+        alert("Rating must be between 1 and 5 ⭐");
         return;
       }
 
@@ -113,8 +131,8 @@ const MyLessons = () => {
         "http://localhost:5000/api/reviews",
         {
           tutorId,
-          rating: data.rating,
-          comment: data.comment,
+          rating,
+          comment: data.comment || "",
         },
         {
           headers: {
@@ -124,9 +142,36 @@ const MyLessons = () => {
       );
 
       alert("Review submitted ✅");
+
+      // reset form
+      setReviewData((prev) => ({
+        ...prev,
+        [tutorId]: { rating: "", comment: "" },
+      }));
+
+      fetchBookings();
+
+    } catch (err) {
+      console.error(err.response?.data || err);
+      alert(err.response?.data?.message || "Failed ❌");
+    }
+  };
+
+  const saveMeetingLink = async (id, link) => {
+    try {
+      await axios.put(
+        `http://localhost:5000/api/bookings/${id}/meeting-link`,
+        { meetingLink: link },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      alert("Meeting link saved ✅");
       fetchBookings();
     } catch (err) {
-      alert(err.response?.data?.message || "Error ❌");
+      alert("Failed to save link ❌");
     }
   };
 
@@ -134,167 +179,158 @@ const MyLessons = () => {
     return <p className="text-center mt-10">Loading lessons...</p>;
   }
 
-  return (
-    <div>
-      <h2 className="text-3xl font-bold mb-6">
-        My Lessons 📚
-      </h2>
+return (
+  <div>
+    <h2 className="text-3xl font-bold mb-6">My Lessons 📚</h2>
 
-      {bookings.filter((b) => b.isPaid).length === 0 ? (
-        <div className="text-center text-gray-400 mt-10">
-          <p>No lessons booked yet 📭</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-3 gap-6">
-          {bookings
-            .filter((b) => b.isPaid) // ✅ ONLY PAID BOOKINGS
-            .map((b) => (
-              <div
-                key={b._id}
-                className="p-5 rounded-2xl bg-white dark:bg-gray-900 border"
-              >
-                <h3 className="text-xl font-semibold">
-                  {b.tutorName}
-                </h3>
+    <div className="grid grid-cols-3 gap-6">
+      {bookings
+        .filter((b) => b.isPaid)
+        .map((b) => {
+          const tutorId =
+            typeof b.tutor === "object" ? b.tutor._id : b.tutor;
 
-                <p className="text-gray-400">{b.subject}</p>
+          const now = new Date();
+          const [hours, minutes] = b.time.split(":");
+const classDateTime = new Date(b.date);
+classDateTime.setHours(parseInt(hours));
+classDateTime.setMinutes(parseInt(minutes));
+          const isCompleted = b.recordingUrl;
 
-                <p className="text-purple-500 mt-2">
-                  {b.date
-                    ? new Date(b.date).toLocaleDateString()
-                    : "No Date"}{" "}
-                  | {b.time}
-                </p>
+          return (
+            <div key={b._id} className="p-5 rounded-2xl border">
+              <h3 className="text-xl font-semibold">{b.tutorName}</h3>
+              <p className="text-gray-400">{b.subject}</p>
 
-                {/* JOIN */}
-                <button
-                  onClick={() => joinClass(b)}
-                  disabled={!b.isPaid}
-                  className={`mt-3 w-full py-2 rounded ${
-                    b.isPaid
-                      ? "bg-green-500 text-white"
-                      : "bg-gray-400 text-white cursor-not-allowed"
-                  }`}
-                >
-                  {b.isPaid ? "Join Class 🎥" : "Payment Pending"}
-                </button>
+              <p className="text-purple-500 mt-2">
+                {new Date(b.date).toLocaleDateString()} | {b.time}
+              </p>
 
-                {/* CANCEL */}
-                <button
-                  onClick={() => cancelBooking(b._id)}
-                  className="mt-2 w-full py-2 bg-red-500 text-white rounded"
-                >
-                  Cancel Booking ❌
-                </button>
+              {/* ✅ NEW SMART ACTION SECTION */}
+              <div className="mt-3 space-y-2">
 
-                {/* RESCHEDULE */}
-                <input
-                  type="text"
-                  placeholder="New Time (e.g. 02:00 PM)"
-                  className="w-full p-2 border rounded mt-2 dark:bg-black dark:text-white"
-                  onChange={(e) =>
-                    setNewTimes({
-                      ...newTimes,
-                      [b._id]: e.target.value,
-                    })
-                  }
-                />
+                {/* COMPLETED MESSAGE */}
+                {isCompleted && (
+                  <p className="text-green-400 text-sm">
+                    Session completed 🎉
+                  </p>
+                )}
 
-                <button
-                  onClick={() => reschedule(b._id)}
-                  className="mt-2 w-full py-2 bg-indigo-500 text-white rounded"
-                >
-                  Reschedule 🔄
-                </button>
-
-                {/* UPLOAD RECORDING */}
-                {user?.role === "tutor" && (
+                {!isCompleted ? (
                   <>
-                    <input
-                      type="text"
-                      placeholder="Recording URL"
-                      value={selectedId === b._id ? recordingUrl : ""}
-                      onChange={(e) => {
-                        setRecordingUrl(e.target.value);
-                        setSelectedId(b._id);
-                      }}
-                      className="w-full p-2 border rounded mt-2 dark:bg-black dark:text-white"
-                    />
-
+                    {/* JOIN */}
                     <button
-                      onClick={uploadRecording}
-                      className="mt-2 w-full py-2 bg-purple-500 text-white rounded"
+                      onClick={() => joinClass(b)}
+                      className="w-full py-2 bg-green-500 text-white rounded"
                     >
-                      Upload Recording 📤
+                      Join Class 🎥
                     </button>
+
+                    {/* CANCEL */}
+                    <button
+                      onClick={() => cancelBooking(b._id)}
+                      className="w-full py-2 bg-red-500 text-white rounded"
+                    >
+                      Cancel Booking ❌
+                    </button>
+
+                    {/* RESCHEDULE (STUDENT ONLY) */}
+                    {user?.role === "student" && (
+                      <>
+                        <select
+                          className="w-full p-2 border rounded text-black"
+                          value={newTimes[b._id] || ""}
+                          onChange={(e) =>
+                            setNewTimes({
+                              ...newTimes,
+                              [b._id]: e.target.value,
+                            })
+                          }
+                        >
+                          <option value="">Select New Time</option>
+                          <option value="10:00 AM">10:00 AM</option>
+                          <option value="2:00 PM">2:00 PM</option>
+                          <option value="6:00 PM">6:00 PM</option>
+                        </select>
+
+                        <button
+                          onClick={() => reschedule(b._id)}
+                          className="w-full py-2 bg-indigo-500 text-white rounded"
+                        >
+                          Reschedule 🔄
+                        </button>
+                      </>
+                    )}
                   </>
-                )}
-
-                {/* REVIEW */}
-                {!b.reviewed && (
-                  <div className="mt-3">
-                    <input
-                      type="number"
-                      placeholder="Rating (1-5)"
-                      min="1"
-                      max="5"
-                      className="w-full p-2 border rounded mb-2 dark:bg-black dark:text-white"
-                      onChange={(e) =>
-                        setReviewData({
-                          ...reviewData,
-                          [b.tutorId]: {
-                            ...reviewData[b.tutorId],
-                            rating: Number(e.target.value),
-                          },
-                        })
-                      }
-                    />
-
-                    <input
-                      type="text"
-                      placeholder="Comment"
-                      className="w-full p-2 border rounded mb-2 dark:bg-black dark:text-white"
-                      onChange={(e) =>
-                        setReviewData({
-                          ...reviewData,
-                          [b.tutorId]: {
-                            ...reviewData[b.tutorId],
-                            comment: e.target.value,
-                          },
-                        })
-                      }
-                    />
-
-                    <button
-                      onClick={() => submitReview(b.tutorId)}
-                      className="w-full py-2 bg-yellow-500 text-white rounded"
-                    >
-                      Submit Review ⭐
-                    </button>
-                  </div>
-                )}
-
-                {/* RECORDING */}
-                {b.recordingUrl && (
+                ) : (
                   <>
-                    <p className="mt-2 text-sm text-gray-400">
-                      Recording 🎥
-                    </p>
+                    {/* WATCH RECORDING */}
+                    {b.recordingUrl && (
+                      <a
+                        href={b.recordingUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-full block text-center py-2 bg-purple-600 text-white rounded"
+                      >
+                        Watch Recording 🎥
+                      </a>
+                    )}
 
-                    <button
-                      onClick={() => getRecording(b._id)}
-                      className="mt-1 w-full py-2 bg-blue-500 text-white rounded"
-                    >
-                      Watch Recording 🎥
-                    </button>
+                    {/* REVIEW */}
+                    {user?.role === "student" && !b.reviewed && (
+                      <div>
+                        <input
+                          type="number"
+                          placeholder="Rating (1-5)"
+                          className="w-full p-2 border rounded mb-2 text-black"
+                          onChange={(e) =>
+                            setReviewData((prev) => ({
+                              ...prev,
+                              [tutorId]: {
+                                ...prev[tutorId],
+                                rating: e.target.value,
+                              },
+                            }))
+                          }
+                        />
+
+                        <input
+                          type="text"
+                          placeholder="Comment"
+                          className="w-full p-2 border rounded mb-2 text-black"
+                          onChange={(e) =>
+                            setReviewData((prev) => ({
+                              ...prev,
+                              [tutorId]: {
+                                ...prev[tutorId],
+                                comment: e.target.value,
+                              },
+                            }))
+                          }
+                        />
+
+                        <button
+                          onClick={() => submitReview(b)}
+                          className="w-full py-2 bg-yellow-500 text-white rounded"
+                        >
+                          Submit Review ⭐
+                        </button>
+                      </div>
+                    )}
                   </>
                 )}
               </div>
-            ))}
-        </div>
-      )}
+            </div>
+          );
+        })}
     </div>
-  );
+  </div>
+);
 };
 
 export default MyLessons;
+
+
+
+
+
