@@ -202,3 +202,14 @@ const [statusFilter, setStatusFilter] = useState("");
     ))}
 </tbody>
 
+            
+          </table>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Bookings;
+
+
