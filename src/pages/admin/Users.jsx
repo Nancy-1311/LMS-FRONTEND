@@ -178,7 +178,7 @@ const Users = () => {
                     >
                       Delete
                     </button>
-
+{/* 
                     {user.role === "tutor" && user.tutor && (
                       <>
                         <button
@@ -195,7 +195,27 @@ const Users = () => {
                           Reject
                         </button>
                       </>
-                    )}
+                    )} */}
+
+                    {user.role === "tutor" &&
+  user.tutor &&
+  user.tutor.approvalStatus === "pending" && (
+    <>
+      <button
+        onClick={() => approveTutor(user.tutor._id)}
+        className="px-3 py-1 bg-green-500 text-white rounded text-xs"
+      >
+        Approve
+      </button>
+
+      <button
+        onClick={() => rejectTutor(user.tutor._id)}
+        className="px-3 py-1 bg-red-500 text-white rounded text-xs"
+      >
+        Reject
+      </button>
+    </>
+)}
 
                   </div>
                 </td>
