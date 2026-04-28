@@ -3,6 +3,8 @@ import axios from "axios";
 
 const Bookings = () => {
   const [bookings, setBookings] = useState([]);
+  const [search, setSearch] = useState("");
+const [statusFilter, setStatusFilter] = useState("");
 
   const token = localStorage.getItem("token");
 
@@ -70,6 +72,27 @@ const Bookings = () => {
         All Bookings 📅
       </h2>
 
+      <div className="flex flex-wrap gap-4 mb-6">
+  <input
+    type="text"
+    placeholder="Search student/tutor..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className="p-2 border rounded text-black"
+  />
+
+  <select
+    value={statusFilter}
+    onChange={(e) => setStatusFilter(e.target.value)}
+    className="p-2 border rounded text-black"
+  >
+    <option value="">All Status</option>
+    <option value="pending">Pending</option>
+    <option value="paid">Paid</option>
+    <option value="completed">Completed</option>
+  </select>
+</div>
+
       {bookings.length === 0 ? (
         <p className="text-gray-500 dark:text-white">No bookings found</p>
       ) : (
@@ -88,84 +111,94 @@ const Bookings = () => {
               </tr>
             </thead>
 
-            <tbody>
-              {bookings.map((b) => (
-                <tr
-                  key={b._id}
-                  className="border-b hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-                >
-                  <td className="p-3 font-medium">
-                    {b.student?.name || "N/A"}
-                  </td>
+           <tbody>
+  {bookings
+    .filter((b) => {
+      const student = b.student?.name?.toLowerCase() || "";
+      const tutor = b.tutor?.userId?.name?.toLowerCase() || "";
 
-                  <td className="p-3">
-                    {b.tutor?.userId?.name || "N/A"}
-                  </td>
+      return (
+        student.includes(search.toLowerCase()) ||
+        tutor.includes(search.toLowerCase())
+      );
+    })
+    .filter((b) => {
+      if (!statusFilter) return true;
 
-                  <td className="p-3">
-                    {new Date(b.date).toLocaleDateString()}
-                  </td>
+      if (statusFilter === "completed") return b.isCompleted;
+      if (statusFilter === "paid") return b.isPaid && !b.isCompleted;
+      if (statusFilter === "pending") return !b.isPaid;
 
-                  <td className="p-3">{b.time}</td>
+      return true;
+    })
+    .map((b) => (
+      <tr
+        key={b._id}
+        className="border-b hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+      >
+        <td className="p-3 font-medium">
+          {b.student?.name || "N/A"}
+        </td>
 
-                  <td className="p-3 font-semibold">
-                    ₹{b.price}
-                  </td>
+        <td className="p-3">
+          {b.tutor?.userId?.name || "N/A"}
+        </td>
 
-                  {/* STATUS */}
-                  <td className="p-3">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold
-                      ${
-                        b.isCompleted
-                          ? "bg-blue-100 text-blue-600"
-                          : b.isPaid
-                          ? "bg-green-100 text-green-600"
-                          : "bg-yellow-100 text-yellow-600"
-                      }`}
-                    >
-                      {b.isCompleted
-                        ? "Completed"
-                        : b.isPaid
-                        ? "Paid"
-                        : "Pending"}
-                    </span>
-                  </td>
+        <td className="p-3">
+          {new Date(b.date).toLocaleDateString()}
+        </td>
 
-                  {/* ACTIONS */}
-                  <td className="p-3 flex gap-2">
-                    
-                    {/* COMPLETE */}
-                    {!b.isCompleted && (
-                      <button
-                        onClick={() => handleComplete(b._id)}
-                        className="px-3 py-1 text-xs rounded bg-green-500 text-white"
-                      >
-                        Complete
-                      </button>
-                    )}
+        <td className="p-3">{b.time}</td>
 
-                    {/* CANCEL */}
-{!b.isCompleted && (
-  <button
-    onClick={() => handleCancel(b._id)}
-    className="px-3 py-1 text-xs rounded bg-red-500 text-white"
-  >
-    Cancel
-  </button>
-)}
+        <td className="p-3 font-semibold">
+          ₹{b.price}
+        </td>
 
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+        {/* STATUS */}
+        <td className="p-3">
+          <span
+            className={`px-3 py-1 rounded-full text-xs font-semibold
+            ${
+              b.isCompleted
+                ? "bg-blue-100 text-blue-600"
+                : b.isPaid
+                ? "bg-green-100 text-green-600"
+                : "bg-yellow-100 text-yellow-600"
+            }`}
+          >
+            {b.isCompleted
+              ? "Completed"
+              : b.isPaid
+              ? "Paid"
+              : "Pending"}
+          </span>
+        </td>
 
-          </table>
-        </div>
-      )}
-    </div>
-  );
-};
+        {/* ACTIONS */}
+        <td className="p-3 flex gap-2">
+          
+          {/* COMPLETE */}
+          {!b.isCompleted && (
+            <button
+              onClick={() => handleComplete(b._id)}
+              className="px-3 py-1 text-xs rounded bg-green-500 text-white"
+            >
+              Complete
+            </button>
+          )}
 
-export default Bookings;
+          {/* CANCEL */}
+          {!b.isCompleted && (
+            <button
+              onClick={() => handleCancel(b._id)}
+              className="px-3 py-1 text-xs rounded bg-red-500 text-white"
+            >
+              Cancel
+            </button>
+          )}
+
+        </td>
+      </tr>
+    ))}
+</tbody>
 
