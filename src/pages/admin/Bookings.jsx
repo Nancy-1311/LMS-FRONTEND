@@ -146,12 +146,14 @@ const Bookings = () => {
                     )}
 
                     {/* CANCEL */}
-                    <button
-                      onClick={() => handleCancel(b._id)}
-                      className="px-3 py-1 text-xs rounded bg-red-500 text-white"
-                    >
-                      Cancel
-                    </button>
+{!b.isCompleted && (
+  <button
+    onClick={() => handleCancel(b._id)}
+    className="px-3 py-1 text-xs rounded bg-red-500 text-white"
+  >
+    Cancel
+  </button>
+)}
 
                   </td>
                 </tr>
