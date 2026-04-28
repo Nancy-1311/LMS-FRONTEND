@@ -7,6 +7,9 @@ const Users = () => {
 const [email, setEmail] = useState("");
 const [password, setPassword] = useState("");
 const [role, setRole] = useState("student");
+  const [search, setSearch] = useState("");
+const [roleFilter, setRoleFilter] = useState("");
+const [statusFilter, setStatusFilter] = useState("");
 
   const token = localStorage.getItem("token");
 
@@ -144,6 +147,36 @@ const [role, setRole] = useState("student");
       <h2 className="text-3xl font-bold mb-6 dark:text-white">
         Users Management
       </h2>
+
+      <div className="flex flex-wrap gap-4 mb-6">
+  <input
+    type="text"
+    placeholder="Search name/email..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className="p-2 border rounded text-black"
+  />
+
+  <select
+    value={roleFilter}
+    onChange={(e) => setRoleFilter(e.target.value)}
+    className="p-2 border rounded text-black"
+  >
+    <option value="">All Roles</option>
+    <option value="student">Student</option>
+    <option value="tutor">Tutor</option>
+  </select>
+
+  <select
+    value={statusFilter}
+    onChange={(e) => setStatusFilter(e.target.value)}
+    className="p-2 border rounded text-black"
+  >
+    <option value="">All Status</option>
+    <option value="active">Active</option>
+    <option value="blocked">Blocked</option>
+  </select>
+</div>
 
       <div className="mb-6 flex flex-wrap gap-3">
   <input
