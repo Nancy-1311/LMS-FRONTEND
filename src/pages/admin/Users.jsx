@@ -3,6 +3,10 @@ import axios from "axios";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
+  const [name, setName] = useState("");
+const [email, setEmail] = useState("");
+const [password, setPassword] = useState("");
+const [role, setRole] = useState("student");
 
   const token = localStorage.getItem("token");
 
@@ -98,11 +102,78 @@ const Users = () => {
     }
   };
 
+  const createUser = async () => {
+  try {
+    await axios.post(
+      "https://lms-backend-2r7y.onrender.com/api/admin/users",
+      { name, email, password, role },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    setName("");
+    setEmail("");
+    setPassword("");
+    setRole("student");
+
+    fetchUsers();
+  } catch (err) {
+    console.error(err);
+  }
+};
+
   return (
     <div>
       <h2 className="text-3xl font-bold mb-6 dark:text-white">
         Users Management
       </h2>
+
+      <div className="mb-6 flex flex-wrap gap-3">
+  <input
+    type="text"
+    placeholder="Name"
+    value={name}
+    onChange={(e) => setName(e.target.value)}
+    className="p-2 border rounded text-black"
+  />
+
+  <input
+    type="email"
+    placeholder="Email"
+    value={email}
+    onChange={(e) => setEmail(e.target.value)}
+    className="p-2 border rounded text-black"
+  />
+
+  <input
+    type="password"
+    placeholder="Password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    className="p-2 border rounded text-black"
+  />
+
+  <select
+    value={role}
+    onChange={(e) => setRole(e.target.value)}
+    className="p-2 border rounded text-black"
+  >
+    <option value="student">Student</option>
+    <option value="tutor">Tutor</option>
+    <option value="admin">Admin</option>
+  </select>
+
+  <button
+    onClick={createUser}
+    className="px-4 py-2 bg-blue-600 text-white rounded"
+  >
+    Add User ➕
+  </button>
+</div>
+      
 
       <div className="overflow-x-auto bg-white dark:bg-gray-900 rounded-xl shadow">
         <table className="w-full text-left">
