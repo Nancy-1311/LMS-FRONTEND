@@ -104,6 +104,12 @@ const [role, setRole] = useState("student");
 
   const createUser = async () => {
   try {
+    // ✅ FRONTEND VALIDATION
+    if (!name || !email || !password) {
+      alert("All fields are required ❌");
+      return;
+    }
+
     await axios.post(
       "https://lms-backend-2r7y.onrender.com/api/admin/users",
       { name, email, password, role },
@@ -114,14 +120,21 @@ const [role, setRole] = useState("student");
       }
     );
 
+    alert("User created successfully ✅");
+
     setName("");
     setEmail("");
     setPassword("");
     setRole("student");
 
     fetchUsers();
+
   } catch (err) {
     console.error(err);
+
+    alert(
+      err.response?.data?.message || "Failed to create user ❌"
+    );
   }
 };
 
