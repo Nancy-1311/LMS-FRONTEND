@@ -6,6 +6,7 @@ const TutorDashboard = () => {
   const [tutor, setTutor] = useState(null);
   const [dashboard, setDashboard] = useState(null);
   const [newSlot, setNewSlot] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
 
   const token = localStorage.getItem("token");
 
@@ -234,6 +235,7 @@ const toggleActive = async () => {
             placeholder="Add time"
             value={newSlot}
             onChange={(e) => setNewSlot(e.target.value)}
+            
             className="p-2 border rounded w-full dark:bg-black"
           />
 
@@ -277,6 +279,7 @@ const toggleActive = async () => {
             value={tutor.bio || ""}
             onChange={(e) =>
               updateField("bio", e.target.value)
+              disabled={!isEditing}
             }
             className="w-full p-2 border rounded dark:bg-black"
           />
@@ -302,12 +305,54 @@ const toggleActive = async () => {
           />
 
           <div className="flex gap-2">
-            <button
+            {/* <button
               onClick={saveProfile}
               className="flex-1 py-2 bg-blue-500 text-white rounded"
             >
               Save
-            </button>
+            </button> */}
+
+            <div className="flex gap-2">
+
+  {!isEditing ? (
+    <button
+      onClick={() => setIsEditing(true)}
+      className="flex-1 py-2 bg-blue-500 text-white rounded"
+    >
+      Edit ✏️
+    </button>
+  ) : (
+    <>
+      <button
+        onClick={() => {
+          saveProfile();
+          setIsEditing(false);
+        }}
+        className="flex-1 py-2 bg-green-500 text-white rounded"
+      >
+        Save ✅
+      </button>
+
+      <button
+        onClick={() => {
+          fetchTutor();
+          setIsEditing(false);
+        }}
+        className="flex-1 py-2 bg-gray-500 text-white rounded"
+      >
+        Cancel ❌
+      </button>
+    </>
+  )}
+
+  <button
+    onClick={toggleActive}
+    className="flex-1 py-2 bg-yellow-500 text-white rounded"
+  >
+    {tutor.isActive ? "Disable" : "Enable"}
+  </button>
+
+</div>
 
             {/* <button
               onClick={deleteTutor}
