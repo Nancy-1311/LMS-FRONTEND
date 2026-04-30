@@ -319,8 +319,7 @@ const TutorDashboard = () => {
         {/* BUTTONS */}
         <div className="flex gap-2">
 
-          {/* ❌ IF DISABLED */}
-         <div className="flex gap-2">
+      
 
   {!isEditing ? (
     <button
@@ -352,8 +351,6 @@ const TutorDashboard = () => {
       </button>
     </>
   )}
-
-</div>
 
     {/* BOOKINGS */}
     {dashboard && (
