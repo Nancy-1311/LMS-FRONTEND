@@ -24,6 +24,17 @@ const handlePayment = async () => {
     return;
   }
 
+   const now = new Date();
+  const [hours, minutes] = selectedSlot.split(":");
+
+  const selectedDateTime = new Date(selectedDate);
+  selectedDateTime.setHours(hours, minutes, 0, 0);
+
+  if (selectedDateTime < now) {
+    alert("❌ You cannot book past time");
+    return;
+  }
+
   try {
     setLoading(true); // moved here
 
@@ -68,6 +79,26 @@ const handlePayment = async () => {
   }
 };
 
+  const isPastTime = (date, time) => {
+  if (!date) return false;
+
+  const now = new Date();
+  const selected = new Date(date);
+
+  // check if same day
+  if (selected.toDateString() === now.toDateString()) {
+    const [hours, minutes] = time.split(":");
+
+    const slotTime = new Date(date);
+    slotTime.setHours(hours, minutes, 0, 0);
+
+    return slotTime < now;
+  }
+
+  return false;
+};
+  
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
 
@@ -102,18 +133,34 @@ const handlePayment = async () => {
         {tutor.availability && tutor.availability.length > 0 ? (
           <div className="grid grid-cols-2 gap-3 mb-6">
             {tutor.availability.map((slot) => (
-              <button
-                key={slot}
-                onClick={() => setSelectedSlot(slot)}
-                className={`p-2 rounded-lg border transition 
-                ${
-                  selectedSlot === slot
-                    ? "bg-purple-500 text-white border-purple-500"
-                    : "border-gray-300 dark:border-gray-600 hover:bg-purple-500 hover:text-white"
-                }`}
-              >
-                {slot}
-              </button>
+            <button
+  key={slot}
+  onClick={() => setSelectedSlot(slot)}
+  disabled={isPastTime(selectedDate, slot)}   
+  className={`p-2 rounded-lg border transition 
+  ${
+    isPastTime(selectedDate, slot)
+      ? "bg-gray-300 cursor-not-allowed text-gray-500"
+      : selectedSlot === slot
+      ? "bg-purple-500 text-white border-purple-500"
+      : "border-gray-300 dark:border-gray-600 hover:bg-purple-500 hover:text-white"
+  }`}
+>
+  {slot}
+</button>
+              // <button
+              //   key={slot}
+              //   onClick={() => setSelectedSlot(slot)}
+              //    disabled={isPastTime(selectedDate, slot)}  
+              //   className={`p-2 rounded-lg border transition 
+              //   ${
+              //     selectedSlot === slot
+              //       ? "bg-purple-500 text-white border-purple-500"
+              //       : "border-gray-300 dark:border-gray-600 hover:bg-purple-500 hover:text-white"
+              //   }`}
+              // >
+              //   {slot}
+              // </button>
             ))}
           </div>
         ) : (
