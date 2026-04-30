@@ -94,28 +94,7 @@ const handleSubmit = async (e) => {
 };
   
 
-  try {
-    setLoading(true);
-
-    await axios.post(
-      "https://lms-backend-2r7y.onrender.com/api/auth/register",
-      {
-        name,
-        email,
-        password,
-        role: form.role,
-      }
-    );
-
-    alert("Registered Successfully ✅");
-    navigate("/login");
-
-  } catch (err) {
-    alert(err.response?.data?.message || "Error ❌");
-  } finally {
-    setLoading(false);
-  }
-};
+ 
 
   return (
     <div className="flex items-center justify-center min-h-screen px-4 
