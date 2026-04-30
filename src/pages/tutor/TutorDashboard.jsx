@@ -137,48 +137,8 @@ const TutorDashboard = () => {
     alert("Profile updated ✅");
     fetchTutor();
   };
-
-  // // DELETE PROFILE
-  // const deleteTutor = async () => {
-  //   await axios.delete(
-  //     "https://lms-backend-2r7y.onrender.com/api/tutors/me",
-  //     {
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     }
-  //   );
-
-  //   alert("Deleted ✅");
-  //   setTutor(null);
-  // };
-
-  // 🔥 ONLY CHANGES APPLIED — REST SAME
-
-// ➕ ADD THIS FUNCTION (just below saveProfile)
-// const toggleActive = async () => {
-//   try {
-//     await axios.put(
-//       "https://lms-backend-2r7y.onrender.com/api/tutors/me",
-//       { isActive: !tutor.isActive },
-//       {
-//         headers: { Authorization: `Bearer ${token}` },
-//       }
-//     );
-
-//     alert(
-//       tutor.isActive
-//         ? "Profile Disabled 🟡"
-//         : "Profile Enabled 🟢"
-//     );
-
-//     fetchTutor();
-//   } catch (err) {
-//     console.error(err);
-//   }
-// };
   
   if (!tutor) return <p>No tutor profile found</p>;
-
-  
 
 return (
   <div>
