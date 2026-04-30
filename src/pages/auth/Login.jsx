@@ -29,38 +29,56 @@ const Login = () => {
     }
   }, [navigate]);
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      alert("Please fill all fields");
-      return;
+ const handleLogin = async () => {
+
+  const trimmedEmail = email.trim();
+  const trimmedPassword = password.trim();
+
+  // ✅ Required fields
+  if (!trimmedEmail || !trimmedPassword) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  // ✅ Email validation
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!isValidEmail.test(trimmedEmail)) {
+    alert("Enter a valid email address");
+    return;
+  }
+
+  // ✅ Password validation
+  if (trimmedPassword.length < 6) {
+    alert("Password must be at least 6 characters");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const res = await axios.post(
+      "https://lms-backend-2r7y.onrender.com/api/auth/login",
+      { email: trimmedEmail, password: trimmedPassword }
+    );
+
+    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("user", JSON.stringify(res.data.user));
+
+    if (res.data.user.role === "admin") {
+      navigate("/admin");
+    } else if (res.data.user.role === "tutor") {
+      navigate("/tutor");
+    } else {
+      navigate("/");
     }
 
-    try {
-      setLoading(true);
-
-      const res = await axios.post(
-        "https://lms-backend-2r7y.onrender.com/api/auth/login",
-        { email, password }
-      );
-
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-
-      if (res.data.user.role === "admin") { 
-  navigate("/admin");
-} else if (res.data.user.role === "tutor") {
-  navigate("/tutor");
-} else {
-  navigate("/");
-}
-
-    } catch (err) {
-      alert(err.response?.data?.message || "Login failed ❌");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  } catch (err) {
+    alert(err.response?.data?.message || "Login failed ❌");
+  } finally {
+    setLoading(false);
+  }
+};
+  
   return (
     <div className="flex items-center justify-center min-h-screen  
     dark:from-gray-900 dark:to-gray-950 transition-all">
