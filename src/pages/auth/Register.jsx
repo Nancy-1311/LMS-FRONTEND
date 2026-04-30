@@ -18,31 +18,60 @@ const Register = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!form.name || !form.email || !form.password) {
-      alert("Please fill all fields");
-      return;
-    }
+  const name = form.name.trim();
+  const email = form.email.trim();
+  const password = form.password.trim();
 
-    try {
-      setLoading(true);
+  // ✅ Required fields
+  if (!name || !email || !password) {
+    alert("Please fill all fields");
+    return;
+  }
 
-      await axios.post(
-        "https://lms-backend-2r7y.onrender.com/api/auth/register",
-        form
-      );
+  // ✅ Name validation
+  if (name.length < 3) {
+    alert("Name must be at least 3 characters");
+    return;
+  }
 
-      alert("Registered Successfully ✅");
-      navigate("/login");
+  // ✅ Email validation
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!isValidEmail.test(email)) {
+    alert("Enter a valid email address");
+    return;
+  }
 
-    } catch (err) {
-      alert(err.response?.data?.message || "Error ❌");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // ✅ Password validation
+  if (password.length < 6) {
+    alert("Password must be at least 6 characters");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    await axios.post(
+      "https://lms-backend-2r7y.onrender.com/api/auth/register",
+      {
+        name,
+        email,
+        password,
+        role: form.role,
+      }
+    );
+
+    alert("Registered Successfully ✅");
+    navigate("/login");
+
+  } catch (err) {
+    alert(err.response?.data?.message || "Error ❌");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="flex items-center justify-center min-h-screen px-4 
