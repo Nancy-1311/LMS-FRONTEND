@@ -392,3 +392,5 @@ const toggleActive = async () => {
   </div>
 );
 }
+
+export default TutorDashboard;
