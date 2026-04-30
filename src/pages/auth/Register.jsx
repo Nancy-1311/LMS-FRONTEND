@@ -22,33 +22,41 @@ const Register = () => {
   e.preventDefault();
 
   const name = form.name.trim();
-  const email = form.email.trim();
+  const email = form.email.trim().toLowerCase();
   const password = form.password.trim();
 
-  // ✅ Required fields
+  // ✅ Required
   if (!name || !email || !password) {
-    alert("Please fill all fields");
+    alert("All fields are required");
     return;
   }
 
-  // ✅ Name validation
-  if (name.length < 3) {
-    alert("Name must be at least 3 characters");
+  // ✅ NAME (real-world safe)
+  const nameRegex = /^[A-Za-z][A-Za-z\s.'-]{1,49}$/;
+  if (!nameRegex.test(name)) {
+    alert("Enter a valid name (letters only, min 2 chars)");
     return;
   }
 
-  // ✅ Email validation
-  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!isValidEmail.test(email)) {
+  // ✅ EMAIL (industry standard)
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+  if (!emailRegex.test(email)) {
     alert("Enter a valid email address");
     return;
   }
 
-  // ✅ Password validation
-  if (password.length < 6) {
-    alert("Password must be at least 6 characters");
+  // ✅ PASSWORD (strong but reasonable)
+  if (password.length < 6 || password.length > 20) {
+    alert("Password must be 6–20 characters");
     return;
   }
+
+  const strongPass = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/;
+  if (!strongPass.test(password)) {
+    alert("Password must include letters and numbers");
+    return;
+  }
+  
 
   try {
     setLoading(true);
@@ -72,7 +80,6 @@ const Register = () => {
     setLoading(false);
   }
 };
-
   return (
     <div className="flex items-center justify-center min-h-screen px-4 
     bg-gradient-to-br from-gray-100 via-blue-50 to-purple-100">
