@@ -11,16 +11,6 @@ const TutorDashboard = () => {
     return /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i.test(time);
   };
 
- const formatTime = (time) => {
-  const [hour, minute] = time.split(":");
-  let h = parseInt(hour);
-
-  const suffix = h >= 12 ? "PM" : "AM";
-  h = h % 12 || 12;
-
-  return `${h}:${minute} ${suffix}`;
-};
-
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -190,7 +180,7 @@ return (
             key={slot}
             className="px-3 py-1 bg-purple-500 text-white rounded"
           >
-            {formatTime(slot)}
+           {slot}
           </span>
         ))}
       </div>
