@@ -180,7 +180,7 @@ const TutorDashboard = () => {
 
   
 
- return (
+return (
   <div>
 
     {dashboard && (
@@ -228,15 +228,15 @@ const TutorDashboard = () => {
             key={slot}
             className="px-3 py-1 bg-purple-500 text-white rounded"
           >
-           {formatTime(slot)}
+            {formatTime(slot)}
           </span>
         ))}
       </div>
 
-      <div className="mt-4 flex gap-2">
-        <label className="text-sm text-gray-400">
-  Select Time
-</label>
+      {/* ADD SLOT */}
+      <div className="mt-4 flex gap-2 items-center">
+        <label className="text-sm text-gray-400">Select Time</label>
+
         <input
           type="time"
           value={newSlot}
@@ -266,18 +266,18 @@ const TutorDashboard = () => {
           onChange={(e) =>
             setTutor({ ...tutor, price: e.target.value })
           }
-           disabled={!isEditing}
+          disabled={!isEditing}
           className="w-full p-2 border rounded dark:bg-gray-800 dark:text-white"
         />
 
-       {isEditing && (
-  <button
-    onClick={updateProfile}
-    className="mt-2 w-full py-2 bg-green-500 text-white rounded"
-  >
-    Update Price 💰
-  </button>
-)}
+        {isEditing && (
+          <button
+            onClick={updateProfile}
+            className="mt-2 w-full py-2 bg-green-500 text-white rounded"
+          >
+            Update Price 💰
+          </button>
+        )}
       </div>
 
       {/* PROFILE EDIT */}
@@ -318,39 +318,40 @@ const TutorDashboard = () => {
 
         {/* BUTTONS */}
         <div className="flex gap-2">
+          {!isEditing ? (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="flex-1 py-2 bg-blue-500 text-white rounded"
+            >
+              Edit ✏️
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={() => {
+                  saveProfile();
+                  setIsEditing(false);
+                }}
+                className="flex-1 py-2 bg-green-500 text-white rounded"
+              >
+                Save ✅
+              </button>
 
-      
+              <button
+                onClick={() => {
+                  fetchTutor();
+                  setIsEditing(false);
+                }}
+                className="flex-1 py-2 bg-gray-500 text-white rounded"
+              >
+                Cancel ❌
+              </button>
+            </>
+          )}
+        </div>
 
-  {!isEditing ? (
-    <button
-      onClick={() => setIsEditing(true)}
-      className="flex-1 py-2 bg-blue-500 text-white rounded"
-    >
-      Edit ✏️
-    </button>
-  ) : (
-    <>
-      <button
-        onClick={() => {
-          saveProfile();
-          setIsEditing(false);
-        }}
-        className="flex-1 py-2 bg-green-500 text-white rounded"
-      >
-        Save ✅
-      </button>
-
-      <button
-        onClick={() => {
-          fetchTutor();
-          setIsEditing(false);
-        }}
-        className="flex-1 py-2 bg-gray-500 text-white rounded"
-      >
-        Cancel ❌
-      </button>
-    </>
-  )}
+      </div>
+    </div>
 
     {/* BOOKINGS */}
     {dashboard && (
@@ -377,7 +378,7 @@ const TutorDashboard = () => {
       Earnings 💰
     </Link>
 
- 
+  </div>
 );
 
 export default TutorDashboard;
