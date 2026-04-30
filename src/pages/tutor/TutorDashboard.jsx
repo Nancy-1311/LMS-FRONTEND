@@ -227,11 +227,13 @@ const toggleActive = async () => {
           placeholder="Add time"
           value={newSlot}
           onChange={(e) => setNewSlot(e.target.value)}
+          disabled={!isEditing}
           className="p-2 border rounded w-full dark:bg-black"
         />
 
         <button
           onClick={addSlot}
+          disabled={!isEditing}
           className="px-4 bg-green-500 text-white rounded"
         >
           Add
@@ -250,15 +252,18 @@ const toggleActive = async () => {
           onChange={(e) =>
             setTutor({ ...tutor, price: e.target.value })
           }
+           disabled={!isEditing}
           className="w-full p-2 border rounded dark:bg-gray-800 dark:text-white"
         />
 
-        <button
-          onClick={updateProfile}
-          className="mt-2 w-full py-2 bg-green-500 text-white rounded"
-        >
-          Update Price 💰
-        </button>
+       {isEditing && (
+  <button
+    onClick={updateProfile}
+    className="mt-2 w-full py-2 bg-green-500 text-white rounded"
+  >
+    Update Price 💰
+  </button>
+)}
       </div>
 
       {/* PROFILE EDIT */}
