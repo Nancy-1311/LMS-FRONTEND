@@ -154,27 +154,27 @@ const TutorDashboard = () => {
   // 🔥 ONLY CHANGES APPLIED — REST SAME
 
 // ➕ ADD THIS FUNCTION (just below saveProfile)
-const toggleActive = async () => {
-  try {
-    await axios.put(
-      "https://lms-backend-2r7y.onrender.com/api/tutors/me",
-      { isActive: !tutor.isActive },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
+// const toggleActive = async () => {
+//   try {
+//     await axios.put(
+//       "https://lms-backend-2r7y.onrender.com/api/tutors/me",
+//       { isActive: !tutor.isActive },
+//       {
+//         headers: { Authorization: `Bearer ${token}` },
+//       }
+//     );
 
-    alert(
-      tutor.isActive
-        ? "Profile Disabled 🟡"
-        : "Profile Enabled 🟢"
-    );
+//     alert(
+//       tutor.isActive
+//         ? "Profile Disabled 🟡"
+//         : "Profile Enabled 🟢"
+//     );
 
-    fetchTutor();
-  } catch (err) {
-    console.error(err);
-  }
-};
+//     fetchTutor();
+//   } catch (err) {
+//     console.error(err);
+//   }
+// };
   
   if (!tutor) return <p>No tutor profile found</p>;
 
@@ -320,68 +320,40 @@ const toggleActive = async () => {
         <div className="flex gap-2">
 
           {/* ❌ IF DISABLED */}
-          {!tutor.isActive ? (
-            <button
-              onClick={toggleActive}
-              className="flex-1 py-2 bg-yellow-500 text-white rounded"
-            >
-              Enable 🟢
-            </button>
-          ) : (
-            <>
-              {!isEditing ? (
-                <>
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="flex-1 py-2 bg-blue-500 text-white rounded"
-                  >
-                    Edit ✏️
-                  </button>
+         <div className="flex gap-2">
 
-                  <button
-                    onClick={toggleActive}
-                    className="flex-1 py-2 bg-yellow-500 text-white rounded"
-                  >
-                    Disable 🟡
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={() => {
-                      saveProfile();
-                      setIsEditing(false);
-                    }}
-                    className="flex-1 py-2 bg-green-500 text-white rounded"
-                  >
-                    Save ✅
-                  </button>
+  {!isEditing ? (
+    <button
+      onClick={() => setIsEditing(true)}
+      className="flex-1 py-2 bg-blue-500 text-white rounded"
+    >
+      Edit ✏️
+    </button>
+  ) : (
+    <>
+      <button
+        onClick={() => {
+          saveProfile();
+          setIsEditing(false);
+        }}
+        className="flex-1 py-2 bg-green-500 text-white rounded"
+      >
+        Save ✅
+      </button>
 
-                  <button
-                    onClick={() => {
-                      fetchTutor();
-                      setIsEditing(false);
-                    }}
-                    className="flex-1 py-2 bg-gray-500 text-white rounded"
-                  >
-                    Cancel ❌
-                  </button>
+      <button
+        onClick={() => {
+          fetchTutor();
+          setIsEditing(false);
+        }}
+        className="flex-1 py-2 bg-gray-500 text-white rounded"
+      >
+        Cancel ❌
+      </button>
+    </>
+  )}
 
-                  <button
-                    onClick={toggleActive}
-                    className="flex-1 py-2 bg-yellow-500 text-white rounded"
-                  >
-                    Disable 🟡
-                  </button>
-                </>
-              )}
-            </>
-          )}
-
-        </div>
-
-      </div>
-    </div>
+</div>
 
     {/* BOOKINGS */}
     {dashboard && (
