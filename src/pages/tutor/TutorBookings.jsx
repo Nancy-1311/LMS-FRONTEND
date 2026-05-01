@@ -186,7 +186,7 @@ const TutorBookings = () => {
                 <p className="text-gray-400">{b.subject}</p>
 
                 <p className="text-purple-500 mt-2">
-                  {new Date(b.date).toLocaleDateString()} | {b.time}
+                  {new Date(b.date).toLocaleDateString()} | {formatTime(b.time)}
                 </p>
 
                 {/* ✅ NEW */}
