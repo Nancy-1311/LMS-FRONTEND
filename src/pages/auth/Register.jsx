@@ -184,9 +184,9 @@ const handleSubmit = async (e) => {
           </button>
 
           <div className="text-sm space-y-1">
-            <p>👤 Admin: admin@test.com / 123456</p>
-            <p>👨‍🏫 Tutor: tutor@test.com / 123456</p>
-            <p>🎓 Student: student@test.com / 123456</p>
+            <p>👤 Admin: admin@test.com / admin123</p>
+            <p>👨‍🏫 Tutor: tutor@test.com / tutor123</p>
+            <p>🎓 Student: student@test.com / student123</p>
           </div>
 
           <div className="mt-4 text-sm">
