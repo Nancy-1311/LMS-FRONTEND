@@ -66,23 +66,23 @@ const [statusFilter, setStatusFilter] = useState("");
   };
 
   // MARK COMPLETED
-  const handleComplete = async (id) => {
-    try {
-      await axios.put(
-        `https://lms-backend-2r7y.onrender.com/api/bookings/admin/${id}/complete`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+  // const handleComplete = async (id) => {
+  //   try {
+  //     await axios.put(
+  //       `https://lms-backend-2r7y.onrender.com/api/bookings/admin/${id}/complete`,
+  //       {},
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
 
-      fetchBookings(); 
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  //     fetchBookings(); 
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // };
 
   return (
     <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow">
@@ -210,12 +210,12 @@ const [statusFilter, setStatusFilter] = useState("");
     if (!isPast && !isCancelled && !isCompleted) {
       return (
         <>
-          <button
+          {/* <button
             onClick={() => handleComplete(b._id)}
             className="px-3 py-1 text-xs rounded bg-green-500 text-white"
           >
             Complete
-          </button>
+          </button> */}
 
           <button
             onClick={() => handleCancel(b._id)}
