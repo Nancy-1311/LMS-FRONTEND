@@ -13,7 +13,7 @@ const [statusFilter, setStatusFilter] = useState("");
 
   const token = localStorage.getItem("token");
 
-  const currentUser = JSON.parse(localStorage.getItem("user"));
+ const currentUser = JSON.parse(localStorage.getItem("user")) || {};
 
   const fetchUsers = async () => {
     try {
@@ -334,7 +334,7 @@ const [statusFilter, setStatusFilter] = useState("");
                 <td className="p-4">
                   <div className="flex flex-wrap gap-2">
 
-                    {user._id !== currentUser._id ? (
+                    {user._id !== currentUser?._id ? (
                       <>
                         <button
                           onClick={() => toggleStatus(user._id)}
