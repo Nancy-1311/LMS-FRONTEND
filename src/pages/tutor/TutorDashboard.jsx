@@ -331,7 +331,7 @@ return (
             <p><b>Student:</b> {b.student?.name}</p>
             <p><b>Email:</b> {b.student?.email}</p>
             <p><b>Date:</b> {new Date(b.date).toLocaleDateString()}</p>
-            <p><b>Time:</b> {b.time}</p>
+            <p><b>Time:</b>{formatTime(b.time)}</p>
           </div>
         ))}
       </div>
