@@ -166,38 +166,54 @@ const [statusFilter, setStatusFilter] = useState("");
                 : "bg-yellow-100 text-yellow-600"
             }`}
           >
-            {b.isCompleted
-              ? "Completed"
-              : b.isPaid
-              ? "Paid"
-              : "Pending"}
+            {b.isCancelled
+  ? "Cancelled"
+  : b.isCompleted
+  ? "Completed"
+  : b.isPaid
+  ? "Paid"
+  : "Pending"}
           </span>
         </td>
 
         {/* ACTIONS */}
-        <td className="p-3 flex gap-2">
-          
-          {/* COMPLETE */}
-          {!b.isCompleted && (
-            <button
-              onClick={() => handleComplete(b._id)}
-              className="px-3 py-1 text-xs rounded bg-green-500 text-white"
-            >
-              Complete
-            </button>
-          )}
+       <td className="p-3 flex gap-2">
 
-          {/* CANCEL */}
-          {!b.isCompleted && (
-            <button
-              onClick={() => handleCancel(b._id)}
-              className="px-3 py-1 text-xs rounded bg-red-500 text-white"
-            >
-              Cancel
-            </button>
-          )}
+  {(() => {
+    const now = new Date();
 
-        </td>
+    const bookingDateTime = new Date(`${b.date} ${b.time}`);
+    const isPast = bookingDateTime < now;
+
+    const isCancelled = b.isCancelled;
+    const isCompleted = b.isCompleted;
+
+    // ✅ SHOW BUTTONS ONLY WHEN VALID
+    if (!isPast && !isCancelled && !isCompleted) {
+      return (
+        <>
+          <button
+            onClick={() => handleComplete(b._id)}
+            className="px-3 py-1 text-xs rounded bg-green-500 text-white"
+          >
+            Complete
+          </button>
+
+          <button
+            onClick={() => handleCancel(b._id)}
+            className="px-3 py-1 text-xs rounded bg-red-500 text-white"
+          >
+            Cancel
+          </button>
+        </>
+      );
+    }
+
+    // ❌ Otherwise show nothing
+    return null;
+  })()}
+
+</td>
       </tr>
     ))}
 </tbody>
