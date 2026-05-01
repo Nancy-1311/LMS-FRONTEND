@@ -334,17 +334,17 @@ const [statusFilter, setStatusFilter] = useState("");
                 <td className="p-4">
                   <div className="flex flex-wrap gap-2">
 
-                    {user.email !== currentUser?.email (
+                    {user.email !== currentUser?.email ? (
                       <>
                         <button
-                          onClick={() => toggleStatus(user.email)}
+                          onClick={() => toggleStatus(user._id)}
                           className="px-3 py-1 bg-yellow-500 text-white rounded"
                         >
                           Toggle
                         </button>
 
                         <button
-                          onClick={() => deleteUser(user.email)}
+                          onClick={() => deleteUser(user._id)}
                           className="px-3 py-1 bg-red-600 text-white rounded"
                         >
                           Delete
@@ -373,7 +373,7 @@ const [statusFilter, setStatusFilter] = useState("");
                     ) : (
                       <span className="text-gray-400 text-sm">You</span>
                     )}
-                    }
+                    
                   </div>
                 </td>
 
