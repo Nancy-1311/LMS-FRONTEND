@@ -178,15 +178,17 @@ const TutorBookings = () => {
                 )}
 
                 <div className="mt-3 mb-2">
-                  {isCompleted ? (
-                    <span className="text-green-500 text-sm font-medium">
-                      Completed ✅
-                    </span>
-                  ) : (
-                    <span className="text-yellow-500 text-sm font-medium">
-                      Upcoming ⏳
-                    </span>
-                  )}
+                  {!isCancelled && (
+  isCompleted ? (
+    <span className="text-green-500 text-sm font-medium">
+      Completed ✅
+    </span>
+  ) : (
+    <span className="text-yellow-500 text-sm font-medium">
+      Upcoming ⏳
+    </span>
+  )
+)}
                 </div>
 
                 {/* BEFORE JOIN */}
