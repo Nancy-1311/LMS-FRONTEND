@@ -13,6 +13,8 @@ const [statusFilter, setStatusFilter] = useState("");
 
   const token = localStorage.getItem("token");
 
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+
   const fetchUsers = async () => {
     try {
       const res = await axios.get(
@@ -180,143 +182,137 @@ const [statusFilter, setStatusFilter] = useState("");
   
 
   return (
-    <div>
-      <h2 className="text-3xl font-bold mb-6 dark:text-white">
-        Users Management
-      </h2>
+  <div>
+    <h2 className="text-3xl font-bold mb-6 dark:text-white">
+      Users Management
+    </h2>
 
-      <div className="flex flex-wrap gap-4 mb-6">
-  <input
-    type="text"
-    placeholder="Search name/email..."
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-    className="p-2 border rounded text-black"
-  />
+    <div className="flex flex-wrap gap-4 mb-6">
+      <input
+        type="text"
+        placeholder="Search name/email..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="p-2 border rounded text-black"
+      />
 
-  <select
-    value={roleFilter}
-    onChange={(e) => setRoleFilter(e.target.value)}
-    className="p-2 border rounded text-black"
-  >
-    <option value="">All Roles</option>
-    <option value="student">Student</option>
-    <option value="tutor">Tutor</option>
-     <option value="admin">Admin</option>
-  </select>
+      <select
+        value={roleFilter}
+        onChange={(e) => setRoleFilter(e.target.value)}
+        className="p-2 border rounded text-black"
+      >
+        <option value="">All Roles</option>
+        <option value="student">Student</option>
+        <option value="tutor">Tutor</option>
+        <option value="admin">Admin</option>
+      </select>
 
-  <select
-    value={statusFilter}
-    onChange={(e) => setStatusFilter(e.target.value)}
-    className="p-2 border rounded text-black"
-  >
-    <option value="">All Status</option>
-    <option value="active">Active</option>
-    <option value="blocked">Blocked</option>
-  </select>
-</div>
+      <select
+        value={statusFilter}
+        onChange={(e) => setStatusFilter(e.target.value)}
+        className="p-2 border rounded text-black"
+      >
+        <option value="">All Status</option>
+        <option value="active">Active</option>
+        <option value="blocked">Blocked</option>
+      </select>
+    </div>
 
-      <div className="mb-6 flex flex-wrap gap-3">
-  <input
-    type="text"
-    placeholder="Name"
-    value={name}
-    onChange={(e) => setName(e.target.value)}
-    className="p-2 border rounded text-black"
-  />
+    <div className="mb-6 flex flex-wrap gap-3">
+      <input
+        type="text"
+        placeholder="Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        className="p-2 border rounded text-black"
+      />
 
-  <input
-    type="email"
-    placeholder="Email"
-    value={email}
-    onChange={(e) => setEmail(e.target.value)}
-    className="p-2 border rounded text-black"
-  />
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="p-2 border rounded text-black"
+      />
 
-  <input
-    type="password"
-    placeholder="Password"
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-    className="p-2 border rounded text-black"
-  />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        className="p-2 border rounded text-black"
+      />
 
-  <select
-    value={role}
-    onChange={(e) => setRole(e.target.value)}
-    className="p-2 border rounded text-black"
-  >
-    <option value="student">Student</option>
-    <option value="tutor">Tutor</option>
-    <option value="admin">Admin</option>
-  </select>
+      <select
+        value={role}
+        onChange={(e) => setRole(e.target.value)}
+        className="p-2 border rounded text-black"
+      >
+        <option value="student">Student</option>
+        <option value="tutor">Tutor</option>
+        <option value="admin">Admin</option>
+      </select>
 
-  <button
-    onClick={createUser}
-    className="px-4 py-2 bg-blue-600 text-white rounded"
-  >
-    Add User ➕
-  </button>
-</div>
-      
+      <button
+        onClick={createUser}
+        className="px-4 py-2 bg-blue-600 text-white rounded"
+      >
+        Add User ➕
+      </button>
+    </div>
 
-      <div className="overflow-x-auto bg-white dark:bg-gray-900 rounded-xl shadow">
-        <table className="w-full text-left">
-          <thead className="bg-gray-100 dark:bg-gray-800 dark:text-white">
-            <tr>
-              <th className="p-4">Name</th>
-              <th className="p-4">Email</th>
-              <th className="p-4">Role</th>
-              <th className="p-4">Status</th>
-              <th className="p-4">Tutor Approval</th>
-              <th className="p-4">Actions</th>
-            </tr>
-          </thead>
+    <div className="overflow-x-auto bg-white dark:bg-gray-900 rounded-xl shadow">
+      <table className="w-full text-left">
+        <thead className="bg-gray-100 dark:bg-gray-800 dark:text-white">
+          <tr>
+            <th className="p-4">Name</th>
+            <th className="p-4">Email</th>
+            <th className="p-4">Role</th>
+            <th className="p-4">Status</th>
+            <th className="p-4">Tutor Approval</th>
+            <th className="p-4">Actions</th>
+          </tr>
+        </thead>
 
-         <tbody className="dark:text-white">
-  {users
-    .filter((user) => {
-      return (
-        user.name.toLowerCase().includes(search.toLowerCase()) ||
-        user.email.toLowerCase().includes(search.toLowerCase())
-      );
-    })
-    .filter((user) =>
-      roleFilter ? user.role === roleFilter : true
-    )
-    .filter((user) =>
-      statusFilter
-        ? statusFilter === "active"
-          ? user.isActive
-          : !user.isActive
-        : true
-    )
-    .map((user) => (
-      <tr key={user._id} className="border-b">
-        
-        {/* NAME */}
-        <td className="p-4">{user.name}</td>
+        <tbody className="dark:text-white">
+          {users
+            .filter((user) => {
+              return (
+                user.name.toLowerCase().includes(search.toLowerCase()) ||
+                user.email.toLowerCase().includes(search.toLowerCase())
+              );
+            })
+            .filter((user) =>
+              roleFilter ? user.role === roleFilter : true
+            )
+            .filter((user) =>
+              statusFilter
+                ? statusFilter === "active"
+                  ? user.isActive
+                  : !user.isActive
+                : true
+            )
+            .map((user) => (
+              <tr key={user._id} className="border-b">
+                
+                <td className="p-4">{user.name}</td>
 
-        {/* EMAIL */}
-        <td className="p-4">{user.email}</td>
+                <td className="p-4">{user.email}</td>
 
-        {/* ROLE */}
-        <td className="p-4 capitalize">{user.role}</td>
+                <td className="p-4 capitalize">{user.role}</td>
 
-        {/* STATUS */}
-        <td className="p-4">
-          <span
-            className={`px-3 py-1 rounded-full text-sm ${
-              user.isActive
-                ? "bg-green-200 text-green-800"
-                : "bg-red-200 text-red-800"
-            }`}
-          >
-            {user.isActive ? "Active" : "Blocked"}
-          </span>
-        </td>
+                <td className="p-4">
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm ${
+                      user.isActive
+                        ? "bg-green-200 text-green-800"
+                        : "bg-red-200 text-red-800"
+                    }`}
+                  >
+                    {user.isActive ? "Active" : "Blocked"}
+                  </span>
+                </td>
 
-                {/* TUTOR APPROVAL */}
                 <td className="p-4">
                   {user.role === "tutor" ? (
                     <span
@@ -335,72 +331,59 @@ const [statusFilter, setStatusFilter] = useState("");
                   )}
                 </td>
 
-                {/* ACTIONS */}
                 <td className="p-4">
                   <div className="flex flex-wrap gap-2">
 
-                    <button
-                      onClick={() => toggleStatus(user._id)}
-                      className="px-3 py-1 bg-yellow-500 text-white rounded"
-                    >
-                      Toggle
-                    </button>
-
-                    <button
-                      onClick={() => deleteUser(user._id)}
-                      className="px-3 py-1 bg-red-600 text-white rounded"
-                    >
-                      Delete
-                    </button>
-{/* 
-                    {user.role === "tutor" && user.tutor && (
+                    {user._id !== currentUser._id ? (
                       <>
                         <button
-                          onClick={() => approveTutor(user.tutor._id)}
-                          className="px-3 py-1 bg-green-500 text-white rounded text-xs"
+                          onClick={() => toggleStatus(user._id)}
+                          className="px-3 py-1 bg-yellow-500 text-white rounded"
                         >
-                          Approve
+                          Toggle
                         </button>
 
                         <button
-                          onClick={() => rejectTutor(user.tutor._id)}
-                          className="px-3 py-1 bg-red-500 text-white rounded text-xs"
+                          onClick={() => deleteUser(user._id)}
+                          className="px-3 py-1 bg-red-600 text-white rounded"
                         >
-                          Reject
+                          Delete
                         </button>
+
+                        {user.role === "tutor" &&
+                          user.tutor &&
+                          user.tutor.approvalStatus === "pending" && (
+                            <>
+                              <button
+                                onClick={() => approveTutor(user.tutor._id)}
+                                className="px-3 py-1 bg-green-500 text-white rounded text-xs"
+                              >
+                                Approve
+                              </button>
+
+                              <button
+                                onClick={() => rejectTutor(user.tutor._id)}
+                                className="px-3 py-1 bg-red-500 text-white rounded text-xs"
+                              >
+                                Reject
+                              </button>
+                            </>
+                          )}
                       </>
-                    )} */}
-
-                    {user.role === "tutor" &&
-  user.tutor &&
-  user.tutor.approvalStatus === "pending" && (
-    <>
-      <button
-        onClick={() => approveTutor(user.tutor._id)}
-        className="px-3 py-1 bg-green-500 text-white rounded text-xs"
-      >
-        Approve
-      </button>
-
-      <button
-        onClick={() => rejectTutor(user.tutor._id)}
-        className="px-3 py-1 bg-red-500 text-white rounded text-xs"
-      >
-        Reject
-      </button>
-    </>
-)}
+                    ) : (
+                      <span className="text-gray-400 text-sm">You</span>
+                    )}
 
                   </div>
                 </td>
+
               </tr>
             ))}
-          </tbody>
-
-        </table>
-      </div>
+        </tbody>
+      </table>
     </div>
-  );
-};
+  </div>
+);
+}
 
 export default Users;
