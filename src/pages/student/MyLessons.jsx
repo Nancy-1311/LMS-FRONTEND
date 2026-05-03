@@ -173,7 +173,7 @@ const cancelBooking = async (id) => {
       // reset form
       setReviewData((prev) => ({
         ...prev,
-        [tutorId]: { rating: "", comment: "" },
+        [booking._id]: { rating: "", comment: "" },
       }));
 
       fetchBookings();
@@ -339,7 +339,7 @@ return (
                             setReviewData((prev) => ({
                               ...prev,
                               [b._id]: {
-                                ...prev[tutorId],
+                                ...prev[b._id],
                                 rating: e.target.value,
                               },
                             }))
