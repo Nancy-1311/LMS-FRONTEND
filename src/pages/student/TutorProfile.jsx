@@ -123,34 +123,6 @@ const TutorProfile = () => {
 
       </div>
 
-      <div className="p-6 rounded-2xl 
-      bg-white dark:bg-gray-900 border">
-
-        {/* <h2 className="text-xl font-bold mb-4">
-          Reviews ⭐
-        </h2> */}
-
-        {/* /* {reviews.length === 0 ? (
-          <p className="text-gray-400">No reviews yet</p>
-        ) : (
-          <div className="space-y-3">
-            {reviews.map((r) => (
-              <div
-                key={r._id}
-                className="p-3 rounded-lg border bg-gray-50 dark:bg-gray-800"
-              >
-                <p className="text-yellow-500 font-semibold">
-                  ⭐ {r.rating}
-                </p> */ */}
-
-                {/* <p className="text-sm text-gray-500 mt-1">
-                  {r.comment || "No comment"}
-                </p> */}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
       
       {showBooking && (
         <BookingModal
